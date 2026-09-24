@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Lỗi {{ error_code }} - CLB Management{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-lg text-center">
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-exclamation-circle fa-5x text-danger"></i>
+                    </div>
+                    <h1 class="display-4 fw-bold">{{ error_code }}</h1>
+                    <p class="lead mb-4">{{ error_message }}</p>
+                    <p class="text-muted mb-4">
+                        {% if error_code == 404 %}
+                            Trang bạn tìm kiếm không tồn tại hoặc đã bị xóa.
+                        {% elif error_code == 500 %}
+                            Đã xảy ra lỗi trong quá trình xử lý. Vui lòng thử lại sau.
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-home"></i> Quay Về Trang Chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

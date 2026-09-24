@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Người Tham Gia Sự Kiện - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Danh Sách Tham Gia: {{ event.event_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="page-title mb-0">
+        <i class="fas fa-users-cog me-2"></i>Chi Tiết Tham Gia
+    </h2>
+    <a href="{{ url_for('club_events') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Trở Lại Sự Kiện
+    </a>
+</div>
+
+<!-- Event Info Card -->
+<div class="card bg-primary text-white mb-4 border-0 shadow-sm" style="border-radius: 12px;">
+    <div class="card-body p-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h3 class="fw-bold mb-2">{{ event.event_name }}</h3>
+                <p class="mb-0"><i class="fas fa-calendar-alt me-2"></i> {{ event.start_date.strftime('%H:%M - %d/%m/%Y') }}</p>
+                <p class="mb-0"><i class="fas fa-map-marker-alt me-2"></i> {{ event.location }}</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <div class="bg-white text-primary d-inline-block px-4 py-2 rounded-3 text-center">
+                    <h2 class="mb-0 fw-bold">{{ registrations|length }} <small class="fs-6 text-muted">/ {{ event.max_participants if event.max_participants else '∞' }}</small></h2>
+                    <span>Lượt đăng ký</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="border-0 px-4 py-3">Sinh Viên</th>
+                        <th class="border-0 px-4 py-3">Ngày Đăng Ký</th>
+                        <th class="border-0 px-4 py-3 text-center">Trạng Thái</th>
+                        <th class="border-0 px-4 py-3 text-center">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reg in registrations %}
+                    <tr>
+                        <td class="px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-weight: bold;">
+                                    {{ reg.student.full_name[:1] }}
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ reg.student.full_name }}</h6>
+                                    <small class="text-muted">{{ reg.student.student_code }} - Khóa {{ reg.student.university_year }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            {{ reg.registration_date.strftime('%d/%m/%Y %H:%M') }}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            {% if reg.status == 'pending' %}
+                            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Chờ duyệt</span>
+                            {% elif reg.status == 'approved' %}
+                            <span class="badge bg-primary px-3 py-2 rounded-pill">Đã duyệt</span>
+                            {% elif reg.status == 'attended' %}
+                            <span class="badge bg-success px-3 py-2 rounded-pill">Đã có mặt (+{{ reg.achievement_points or event.achievement_points }}đ)</span>
+                            {% elif reg.status == 'rejected' %}
+                            <span class="badge bg-danger px-3 py-2 rounded-pill">Đã từ chối</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            {% if reg.status == 'pending' %}
+                            <div class="d-flex justify-content-center gap-2">
+                                <form action="{{ url_for('process_event_registration', reg_id=reg.id, action='approve') }}" method="POST">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary" title="Phê duyệt">
+                                        <i class="fas fa-check"></i> Duyệt
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('process_event_registration', reg_id=reg.id, action='reject') }}" method="POST">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Từ chối">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            {% elif reg.status == 'approved' %}
+                            <form action="{{ url_for('process_event_registration', reg_id=reg.id, action='attend') }}" method="POST">
+                                <button type="submit" class="btn btn-sm btn-success" title="Điểm danh">
+                                    <i class="fas fa-user-check me-1"></i> Điểm danh
+                                </button>
+                            </form>
+                            {% else %}
+                            <span class="text-muted small"><i class="fas fa-lock me-1"></i> Đã chốt</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-user-slash fa-3x mb-3" style="color: #e0e0e0;"></i>
+                                <p class="mb-0">Chưa có sinh viên nào đăng ký sự kiện này.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

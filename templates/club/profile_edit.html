@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Chỉnh Sửa Thông Tin CLB - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Chỉnh Sửa Câu Lạc Bộ{% endblock %}
+
+{% block content %}
+<h2 class="page-title mb-4">
+    <i class="fas fa-edit me-2"></i>Cập Nhật Thông Tin CLB
+</h2>
+
+<div class="row">
+    <div class="col-md-9">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Tên Câu Lạc Bộ</label>
+                            <input type="text" name="club_name" class="form-control" value="{{ club.club_name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Lĩnh Vực Hoạt Động</label>
+                            <input type="text" name="field" class="form-control" value="{{ club.field or '' }}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Tên Chủ Tịch</label>
+                            <input type="text" name="president_name" class="form-control" value="{{ club.president_name or '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Tên Phó Chủ Tịch</label>
+                            <input type="text" name="vice_president_name" class="form-control" value="{{ club.vice_president_name or '' }}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Email Liên Hệ</label>
+                            <input type="email" name="email" class="form-control" value="{{ club.email or '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Số Điện Thoại</label>
+                            <input type="text" name="phone" class="form-control" value="{{ club.phone or '' }}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Năm Thành Lập</label>
+                            <input type="number" name="establishment_year" class="form-control" value="{{ club.establishment_year or '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Link Ảnh Logo (URL)</label>
+                            <input type="url" name="logo_url" class="form-control" value="{{ club.logo_url or '' }}" placeholder="https://...">
+                            <small class="text-muted">Định dạng ảnh vuông 1:1.</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Mô Tả Giới Thiệu / Tầm Nhìn</label>
+                            <textarea name="description" class="form-control" rows="5">{{ club.description or '' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div style="padding-top: 20px; border-top: 1px solid #eee;">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-save me-2"></i>Lưu Thay Đổi
+                        </button>
+                        <a href="{{ url_for('club_profile') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Hủy
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

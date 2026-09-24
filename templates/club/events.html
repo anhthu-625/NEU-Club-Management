@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Quản Lý Sự Kiện - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Quản Lý Sự Kiện{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h3 class="fw-bold mb-1 text-dark"><i class="fas fa-calendar-alt text-primary me-2"></i>Sự Kiện Của CLB</h3>
+        <p class="text-muted small mb-0">Quản lý các hoạt động, phong trào và đăng ký tham gia</p>
+    </div>
+    <a href="{{ url_for('create_event') }}" class="btn btn-primary btn-sm rounded-pill px-3 py-1 fw-bold">
+        <i class="fas fa-plus me-1"></i>Tạo Mới
+    </a>
+</div>
+
+<!-- Search Bar (Compact) -->
+<div class="card border-0 mb-3 shadow-sm rounded-3">
+    <div class="card-body p-2">
+        <div class="input-group input-group-sm border-0">
+            <span class="input-group-text bg-transparent border-0 px-3"><i class="fas fa-search text-muted small"></i></span>
+            <input type="text" class="form-control border-0 bg-transparent py-2" style="font-size: 13px;" placeholder="Tìm nhanh tên sự kiện, mô tả hoặc địa điểm..." id="searchInput">
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light bg-opacity-50">
+                    <tr style="font-size: 11px; text-transform: uppercase; color: #64748B;">
+                        <th class="px-4 py-3 border-0">Thông Tin Sự Kiện</th>
+                        <th class="px-4 py-3 border-0">Thời Gian</th>
+                        <th class="px-4 py-3 border-0">Địa Điểm</th>
+                        <th class="px-4 py-3 border-0 text-center">Tham Gia</th>
+                        <th class="px-4 py-3 border-0 text-center">Trạng Thái</th>
+                        <th class="px-4 py-3 border-0 text-center">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                    <tr style="font-size: 12.5px;">
+                        <td class="px-4 py-2">
+                            <a href="{{ url_for('event_detail', event_id=event.id) }}" class="text-decoration-none hover-primary">
+                                <div class="fw-bold text-dark">{{ event.event_name }}</div>
+                            </a>
+                            <div class="text-muted small text-truncate" style="max-width: 200px;">{{ event.description }}</div>
+                        </td>
+                        <td class="px-4 py-2 text-muted">
+                            {{ event.start_date.strftime('%H:%M - %d/%m/%Y') }}
+                        </td>
+                        <td class="px-4 py-2 text-muted">
+                            {{ event.location }}
+                        </td>
+                        <td class="px-4 py-2 text-center text-muted">
+                            <a href="{{ url_for('event_registrations', event_id=event.id) }}" class="text-decoration-none">
+                                <span class="badge bg-secondary-subtle text-secondary rounded-pill" style="font-size: 10px;">
+                                    {{ event.registrations|length }} / {{ event.max_participants if event.max_participants else '∞' }}
+                                </span>
+                            </a>
+                        </td>
+                        <td class="px-4 py-2 text-center">
+                            {% if event.status == 'pending' %}
+                            <span class="badge bg-warning-light text-warning px-2 py-1 rounded-pill" style="font-size: 9px;">Chờ duyệt</span>
+                            {% elif event.status == 'approved' %}
+                            <span class="badge bg-success-light text-success px-2 py-1 rounded-pill" style="font-size: 9px;">Đã duyệt</span>
+                            {% elif event.status == 'rejected' %}
+                            <span class="badge bg-danger-light text-danger px-2 py-1 rounded-pill" style="font-size: 9px;">Từ chối</span>
+                            {% else %}
+                            <span class="badge bg-secondary-light text-secondary px-2 py-1 rounded-pill" style="font-size: 9px;">{{ event.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-center">
+                            <div class="d-flex justify-content-center gap-1">
+                                <a href="{{ url_for('event_registrations', event_id=event.id) }}" class="btn btn-sm text-info hvr-bg-info-light p-1 px-2 border-0 rounded-2" title="Người tham gia">
+                                    <i class="fas fa-users"></i>
+                                </a>
+                                <a href="{{ url_for('edit_event', event_id=event.id) }}" class="btn btn-sm text-primary hvr-bg-primary-light p-1 px-2 border-0 rounded-2" title="Sửa">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-sm text-secondary hvr-bg-secondary-light p-1 px-2 border-0 rounded-2" title="Xem QR & Điểm danh">
+                                    <i class="fas fa-qrcode"></i>
+                                </a>
+                                <form action="{{ url_for('delete_event', event_id=event.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm text-danger hvr-bg-danger-light p-1 px-2 border-0 rounded-2" title="Xóa" onclick="return confirm('Xóa sự kiện này?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-calendar-times fa-3x mb-3" style="color: #e0e0e0;"></i>
+                                <p class="mb-0">Bạn chưa tạo sự kiện nào.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/club/events.css') }}">
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

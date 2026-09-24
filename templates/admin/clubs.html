@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Quản Lý Câu Lạc Bộ - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Quản Lý Câu Lạc Bộ{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h3 class="fw-bold mb-1 text-dark"><i class="fas fa-users-cog text-primary me-2"></i>Quản Lý Câu Lạc Bộ</h3>
+        <p class="text-muted small mb-0">Kiểm duyệt và quản trị tất cả các tổ chức sinh viên trên hệ thống</p>
+    </div>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 fw-bold">
+        <i class="fas fa-arrow-left me-1"></i>Bảng Điều Khiển
+    </a>
+</div>
+
+<!-- Search & Filter Bar (Compact) -->
+<div class="card border-0 mb-3 shadow-sm rounded-3">
+    <div class="card-body p-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-12">
+                <div class="input-group input-group-sm border-0">
+                    <span class="input-group-text bg-transparent border-0 px-3"><i class="fas fa-search text-muted small"></i></span>
+                    <input type="text" class="form-control border-0 bg-transparent py-2" style="font-size: 13px;" placeholder="Tìm nhanh theo tên CLB, lĩnh vực hoặc chủ tịch..." id="searchInput">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Clubs Table -->
+<div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+    <div class="table-responsive">
+        {% if clubs %}
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light bg-opacity-50">
+                <tr style="font-size: 11px; text-transform: uppercase; color: #64748B;">
+                    <th class="px-4 py-3 border-0">Thông Tin Câu Lạc Bộ</th>
+                    <th class="px-4 py-3 border-0">Lĩnh Vực</th>
+                    <th class="px-4 py-3 border-0">Chủ Tịch</th>
+                    <th class="px-4 py-3 border-0 text-center">Trạng Thái</th>
+                    <th class="px-4 py-3 border-0 text-center">Thành Viên</th>
+                    <th class="px-4 py-3 border-0 text-center">Hành Động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for club in clubs %}
+                <tr class="club-row" data-status="{{ club.status }}" style="font-size: 12.5px;">
+                    <td class="px-4 py-2">
+                        <div class="fw-bold fs-6">
+                            <a href="{{ url_for('club_detail', club_id=club.id) }}" class="text-dark text-decoration-none hover-primary" style="color: inherit;">{{ club.club_name }}</a>
+                        </div>
+                        <div class="text-muted small">Cơ sở: NEU Main Campus</div>
+                    </td>
+                    <td class="px-4 py-2 text-muted">
+                        {{ club.field }}
+                    </td>
+                    <td class="px-4 py-2 text-dark fw-medium">
+                        {{ club.president_name }}
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                        {% if club.status == 'pending' %}
+                            <span class="badge bg-warning-light text-warning px-2 py-1 rounded-pill" style="font-size: 9px;">Chờ duyệt</span>
+                        {% elif club.status == 'approved' %}
+                            <span class="badge bg-success-light text-success px-2 py-1 rounded-pill" style="font-size: 9px;">Đã duyệt</span>
+                        {% else %}
+                            <span class="badge bg-danger-light text-danger px-2 py-1 rounded-pill" style="font-size: 9px;">Từ chối</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2 text-center text-muted">
+                        <span class="badge bg-secondary-light text-secondary rounded-pill" style="font-size: 10px;">{{ club.members|length }}</span>
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                        {% if club.status == 'pending' %}
+                        <div class="d-flex justify-content-center gap-1">
+                            <form method="POST" class="d-inline">
+                                <input type="hidden" name="club_id" value="{{ club.id }}">
+                                <input type="hidden" name="action" value="approve">
+                                <button type="submit" class="btn btn-sm text-success hvr-bg-success-light p-1 px-2 border-0 rounded-2" title="Duyệt">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
+                            <form method="POST" class="d-inline">
+                                <input type="hidden" name="club_id" value="{{ club.id }}">
+                                <input type="hidden" name="action" value="reject">
+                                <button type="submit" class="btn btn-sm text-danger hvr-bg-danger-light p-1 px-2 border-0 rounded-2" title="Từ chối">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% else %}
+                        <span class="text-muted small" style="font-size: 10px;">Đã xử lý</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="text-center p-5">
+            <i class="fas fa-users fa-3x mb-3" style="color: #ddd;"></i>
+            <p style="color: #999;">Chưa có câu lạc bộ nào</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/clubs.css') }}">
+
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('.club-row');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+</script>
+{% endblock %}

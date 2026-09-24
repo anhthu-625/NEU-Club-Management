@@ -1,0 +1,5 @@
+    .bg-primary-light { background-color: rgba(59, 130, 246, 0.1); }
+    .x-small { font-size: 0.7rem; }
+    .fs-xs { font-size: 0.75rem; }
+    .hvr-bg-danger-light:hover { background-color: rgba(239, 68, 68, 0.1); color: #ef4444 !important; }
+    .hvr-text-primary:hover { color: #3b82f6 !important; }

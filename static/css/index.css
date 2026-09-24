@@ -1,0 +1,122 @@
+    .hero-section {
+        position: relative;
+        padding: 5rem 0;
+        overflow: hidden;
+        background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.05), transparent 40%),
+                    radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.05), transparent 40%);
+    }
+
+    .hero-content {
+        z-index: 2;
+        position: relative;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.125rem;
+        color: var(--secondary);
+        max-width: 600px;
+        line-height: 1.6;
+        margin-bottom: 2.5rem;
+    }
+
+    .hero-image-container {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-image {
+        border-radius: 2rem;
+        box-shadow: var(--shadow-lg);
+        width: 100%;
+        height: auto;
+        transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+        transition: var(--transition);
+    }
+
+    .hero-image:hover {
+        transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+    }
+
+    .floating-badge {
+        position: absolute;
+        bottom: 2rem;
+        left: -1rem;
+        padding: 1rem 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .feature-card {
+        border-radius: 1.5rem;
+        padding: 2rem;
+        height: 100%;
+        border: 1px solid rgba(0,0,0,0.03);
+        background: white;
+        transition: var(--transition);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-soft);
+    }
+
+    .feature-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.25rem;
+    }
+
+    .club-card {
+        border-radius: 20px;
+        background: white;
+        padding: 1.5rem;
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: var(--transition);
+    }
+
+    .club-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-5px);
+    }
+
+    .club-badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--primary);
+        background: var(--primary-soft);
+        padding: 0.4rem 0.8rem;
+        border-radius: 100px;
+    }
+
+    /* Custom Responsive spacing */
+    @media (max-width: 991.98px) {
+        .hero-title { font-size: 2.5rem; }
+        .hero-section { padding: 3rem 0; }
+    }
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

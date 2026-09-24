@@ -1,0 +1,7 @@
+.bg-success-light { background-color: rgba(16, 185, 129, 0.1); }
+.bg-danger-light { background-color: rgba(239, 68, 68, 0.1); }
+.bg-warning-light { background-color: rgba(245, 158, 11, 0.1); }
+.bg-secondary-light { background-color: rgba(100, 116, 139, 0.1); }
+.hvr-bg-success-light:hover { background-color: rgba(16, 185, 129, 0.1) !important; transition: 0.2s; }
+.hvr-bg-danger-light:hover { background-color: rgba(239, 68, 68, 0.1) !important; transition: 0.2s; }
+.hvr-bg-info-light:hover { background-color: rgba(6, 182, 212, 0.1) !important; transition: 0.2s; }

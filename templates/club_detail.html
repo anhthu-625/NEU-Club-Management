@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+
+{% block title %}{{ club.club_name }} - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Thông Tin Câu Lạc Bộ{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    {% if current_user.is_authenticated and current_user.is_admin() %}
+    <a href="{{ url_for('admin_clubs') }}" class="btn btn-outline-primary rounded-pill px-3">
+        <i class="fas fa-arrow-left me-2"></i>Quay lại Quản lý CLB
+    </a>
+    {% else %}
+    <a href="{{ url_for('student_clubs') }}" class="btn btn-outline-secondary rounded-pill px-3">
+        <i class="fas fa-arrow-left me-2"></i>Trở về Thư Viện CLB
+    </a>
+    {% endif %}
+</div>
+
+<!-- Header Card -->
+<div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+    <div class="card-body p-0">
+        <div class="bg-primary" style="height: 120px; background: linear-gradient(135deg, #3B82F6 0%, #1E3A8A 100%); position: relative;">
+            <div style="position: absolute; bottom: -40px; left: 30px;">
+                {% if club.logo_url %}
+                <img src="{{ club.logo_url }}" alt="Logo" class="rounded-circle shadow border border-4 border-white bg-white" style="width: 100px; height: 100px; object-fit: cover;">
+                {% else %}
+                <div class="rounded-circle shadow border border-4 border-white bg-light text-primary d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; font-size: 40px; font-weight: bold;">
+                    {{ club.club_name[:1] }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="px-4 pb-4 pt-5">
+            <div class="d-flex justify-content-between align-items-start mt-2 flex-wrap">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">{{ club.club_name }}</h2>
+                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill">
+                            <i class="fas fa-tag me-1"></i>{{ club.field }}
+                        </span>
+                        {% if club.establishment_year %}
+                        <span class="text-muted small"><i class="fas fa-calendar-check me-1"></i>Thành lập: {{ club.establishment_year }}</span>
+                        {% endif %}
+                        <span class="text-muted small"><i class="fas fa-users me-1"></i>{{ members|length }} Thành viên</span>
+                    </div>
+                </div>
+                
+                <div class="mt-3 mt-md-0">
+                    {% if current_user.is_authenticated %}
+                        {% if is_member %}
+                            <button class="btn btn-success btn-lg fw-bold shadow-sm px-4 rounded-pill" disabled>
+                                <i class="fas fa-check-circle me-2"></i>Đã là Thành viên
+                            </button>
+                        {% elif current_user.is_student() %}
+                            <button type="button" class="btn btn-primary btn-lg fw-bold shadow-sm px-4 rounded-pill hvr-grow" data-bs-toggle="modal" data-bs-target="#joinClubModal">
+                                <i class="fas fa-user-plus me-2"></i>Gửi Đơn Tham Gia 
+                            </button>
+                        {% endif %}
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg fw-bold shadow-sm px-4 rounded-pill hvr-grow">
+                            <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập để tham gia
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Main Content (Left) -->
+    <div class="col-lg-8">
+        <!-- Introduction Section -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                <h5 class="fw-bold mb-0 text-primary">
+                    <i class="fas fa-info-circle me-2"></i>Giới thiệu về CLB
+                </h5>
+            </div>
+            <div class="card-body p-4 pt-2">
+                <div class="text-muted fs-6" style="line-height: 1.8; white-space: pre-line;">
+{{ club.description if club.description else 'Câu lạc bộ chưa cập nhật thông tin giới thiệu.' }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Posts / News Section -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4 overflow-hidden">
+            <div class="card-header bg-white border-bottom-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-primary"><i class="fas fa-newspaper me-2"></i>Tin tức & Hoạt động</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if posts %}
+                    <div class="list-group list-group-flush border-top">
+                        {% for post in posts %}
+                        <div class="list-group-item p-4 border-0 border-bottom">
+                            <div class="d-flex gap-4">
+                                {% if post.image_url %}
+                                <div class="flex-shrink-0 d-none d-sm-block">
+                                    <img src="{{ post.image_url }}" class="rounded-4 shadow-sm border" style="width: 120px; height: 120px; object-fit: cover;">
+                                </div>
+                                {% endif %}
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="fw-bold text-dark mb-0">{{ post.title }}</h5>
+                                        <div class="text-end">
+                                            <span class="text-muted d-block small mb-1"><i class="far fa-calendar-alt me-1"></i>{{ post.created_at.strftime('%d/%m/%Y') }}</span>
+                                            {% if post.visibility == 'members' %}
+                                                <span class="badge bg-primary-subtle text-primary border-0 rounded-pill x-small">
+                                                    <i class="fas fa-user-friends me-1"></i> Nội bộ
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="text-muted small" style="white-space: pre-line; line-height: 1.6;">{{ post.content | safe }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-bullhorn fa-3x mb-3 opacity-25"></i>
+                        <p class="mb-0">Hiện chưa có thông báo hay hoạt động nào.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Featured Events -->
+        <div class="d-flex justify-content-between align-items-end mb-3 mt-5">
+            <h5 class="fw-bold mb-0 text-primary"><i class="fas fa-calendar-star me-2"></i>Sự kiện nổi bật</h5>
+        </div>
+        <div class="row">
+            {% for event in events %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hvr-shadow">
+                    {% if event.background_image %}
+                    <img src="{{ event.background_image }}" class="card-img-top" style="height: 160px; object-fit: cover;">
+                    {% else %}
+                    <div class="bg-primary-subtle d-flex align-items-center justify-content-center" style="height: 160px;">
+                        <i class="fas fa-calendar-alt text-primary opacity-50" style="font-size: 40px;"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body p-4">
+                         <div class="badge bg-primary-subtle text-primary border-0 mb-3 px-3 py-2 rounded-pill fw-bold" style="font-size: 11px;">
+                            <i class="far fa-calendar-alt me-2"></i>{{ event.start_date.strftime('%d/%m/%Y') }}
+                         </div>
+                         <h5 class="fw-bold text-dark mb-3 line-clamp-2" style="height: 3rem;">{{ event.event_name }}</h5>
+                         <p class="text-muted small mb-4 line-clamp-2 h-auto" style="min-height: 2.5rem;"><i class="fas fa-map-marker-alt text-danger me-2"></i>{{ event.location }}</p>
+                         <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow-sm">Xem Chi Tiết</a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4 text-center py-5 bg-light">
+                    <p class="text-muted mb-0">CLB hiện chưa có sự kiện nào sắp tới.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Sidebar Column (Right) -->
+    <div class="col-lg-4">
+        <!-- Contact Info -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                <h6 class="fw-bold mb-0">Thông tin liên hệ</h6>
+            </div>
+            <div class="card-body p-4 pt-2">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-3 d-flex align-items-start">
+                        <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px;">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <span class="d-block text-muted small">Email</span>
+                            <span class="text-dark fw-medium">{{ club.email if club.email else 'Đang cập nhật' }}</span>
+                        </div>
+                    </li>
+                    <li class="mb-3 d-flex align-items-start">
+                        <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px;">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div>
+                            <span class="d-block text-muted small">Số điện thoại</span>
+                            <span class="text-dark fw-medium">{{ club.phone if club.phone else 'Đang cập nhật' }}</span>
+                        </div>
+                    </li>
+                    <li class="mb-0 d-flex align-items-start">
+                        <div class="bg-info-subtle text-info rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px;">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div>
+                            <span class="d-block text-muted small">Người đại diện</span>
+                            {% set ns = namespace(president=none) %}
+                            {% for m in members %}
+                                {% if m.position == 'Chủ nhiệm' %}
+                                    {% set ns.president = m %}
+                                {% endif %}
+                            {% endfor %}
+                            <span class="text-dark fw-bold">
+                                {% if ns.president %}
+                                    {{ ns.president.student.full_name }}
+                                {% else %}
+                                    {{ club.president_name if club.president_name else 'Đang cập nhật' }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        {% if is_member or current_user.is_admin() or (current_user.is_club() and current_user.club_profile and current_user.club_profile.id == club.id) %}
+        <!-- Membership List Section (Visible only to members) -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4 overflow-hidden">
+            <div class="card-header bg-white border-bottom pt-4 pb-2 px-4 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0">Danh sách thành viên</h6>
+                <span class="badge bg-secondary-subtle text-secondary rounded-pill">{{ members|length }}</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 py-2 border-0" style="width: 60px;">#</th>
+                                <th class="py-2 border-0">Họ và tên</th>
+                                <th class="py-2 border-0 text-center">Chức vụ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in members[:15] %}
+                            <tr>
+                                <td class="ps-4 border-0">
+                                    {% if member.student.avatar_url %}
+                                    <img src="{{ member.student.avatar_url }}" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px; font-size: 12px; font-weight: bold;">
+                                        {{ member.student.full_name[:1] }}
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td class="border-0">
+                                    <span class="fw-medium text-dark">{{ member.student.full_name }}</span>
+                                </td>
+                                <td class="border-0 text-center">
+                                    {% if member.position == 'Chủ nhiệm' %}
+                                        <span class="badge bg-danger text-white rounded-pill px-2 py-1" style="font-size: 9px; letter-spacing: 0.5px;">CHỦ NHIỆM</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2 py-1" style="font-size: 9px; letter-spacing: 0.5px;">THÀNH VIÊN</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-5 text-muted border-0">
+                                    <i class="fas fa-users-slash d-block mb-2 fs-3 opacity-25"></i>
+                                    Chưa có thành viên nào được hiển thị.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Products Section -->
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                <h6 class="fw-bold mb-0">Gian Hàng Gây Quỹ</h6>
+            </div>
+            <div class="card-body p-0 pt-2">
+                <div class="list-group list-group-flush border-top">
+                    {% for product in products %}
+                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="list-group-item list-group-item-action p-4 border-0 border-bottom">
+                        <div class="d-flex align-items-center">
+                            {% if product.image_url %}
+                            <img src="{{ product.image_url }}" alt="{{ product.product_name }}" class="rounded-3 me-3 border" style="width: 60px; height: 60px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light rounded-3 d-flex align-items-center justify-content-center me-3 border text-muted" style="width: 60px; height: 60px;">
+                                <i class="fas fa-box" style="font-size: 24px;"></i>
+                            </div>
+                            {% endif %}
+                            <div class="flex-grow-1 min-width-0">
+                                <h6 class="mb-1 text-dark fw-bold text-truncate">{{ product.product_name }}</h6>
+                                <span class="text-primary fw-bold">{{ "{:,.0f}".format(product.price) }} ₫</span>
+                            </div>
+                        </div>
+                    </a>
+                    {% else %}
+                    <div class="p-5 text-center text-muted small bg-light border-top">
+                        <i class="fas fa-store-slash d-block mb-3 opacity-25" style="font-size: 32px;"></i>
+                        CLB chưa có sản phẩm nào
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Join Club Modal (Re-defined for completeness) -->
+{% if current_user.is_authenticated and current_user.is_student() and not is_member and current_user.id != club.registered_by_user_id %}
+<div class="modal fade" id="joinClubModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold text-dark">Đơn Gia Nhập Câu Lạc Bộ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('student_apply_club', club_id=club.id) }}">
+                <div class="modal-body p-4">
+                    <div class="alert alert-primary border-0 rounded-4 mb-4" style="background: #eff6ff;">
+                        <div class="d-flex text-primary small">
+                            <i class="fas fa-info-circle me-3 mt-1"></i>
+                            <span>Bạn đang ứng tuyển vào <strong>{{ club.club_name }}</strong>. Vui lòng xác nhận hồ sơ bên dưới.</span>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold text-uppercase px-1">Xác nhận hồ sơ</label>
+                        <div class="p-3 bg-light rounded-4 border border-white shadow-sm">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted small">Họ và tên:</span>
+                                <span class="fw-bold small">{{ current_user.student_profile.full_name }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted small">Mã SV:</span>
+                                <span class="fw-bold small">{{ current_user.student_profile.student_code }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted small">Email:</span>
+                                <span class="fw-bold small text-lowercase" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ current_user.email }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label text-muted small fw-bold text-uppercase px-1">Tại sao bạn tham gia?</label>
+                        <textarea name="motivation" class="form-control border-0 bg-light rounded-4 p-3 shadow-none" 
+                                  placeholder="Kể về định hướng, đam mê hoặc những gì bạn có thể đóng góp..." 
+                                  rows="4" required style="resize: none;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn px-4 fw-bold text-muted border-0" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">Nộp Đơn Ứng Tuyển</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/club_detail.css') }}">
+
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% set hide_sidebar = True %}
+
+{% block title %}Đăng ký tài khoản - NEU Connect{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="register-container fade-in-up">
+    <div class="register-card">
+        <div class="register-header">
+            <div class="register-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h3 class="fw-bold text-dark mb-1">Tạo tài khoản mới</h3>
+            <p class="text-muted small">Khám phá thế giới CLB tại NEU ngay hôm nay</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+            <input type="hidden" name="user_type" value="student">
+            
+            <div class="section-title">Tài khoản & Đăng nhập</div>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="username" class="form-label">Tên đăng nhập *</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Ví dụ: nva2024" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email sinh viên *</label>
+                    <input type="email" class="form-control" id="email" name="email" 
+                           placeholder="nva@neu.edu.vn" required
+                           pattern=".+@neu\.edu\.vn" title="Vui lòng sử dụng email có đuôi @neu.edu.vn">
+                </div>
+                <div class="col-12">
+                    <label for="password" class="form-label">Mật khẩu *</label>
+                    <input type="password" class="form-control" id="password" name="password" 
+                           placeholder="Tối thiểu 6 ký tự" required minlength="6">
+                </div>
+            </div>
+
+            <div class="section-title">Thông tin cá nhân</div>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="student_code" class="form-label">Mã sinh viên *</label>
+                    <input type="text" class="form-control" id="student_code" name="student_code" placeholder="1122xxxx" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="full_name" class="form-label">Họ và tên *</label>
+                    <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Nguyễn Văn A" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 btn-register">
+                Đăng Ký Tài Khoản <i class="fas fa-check-circle ms-2"></i>
+            </button>
+        </form>
+
+        <div class="text-center mt-4 pt-3 border-top">
+            <p class="text-muted small mb-0">Đã có tài khoản? 
+                <a href="{{ url_for('login') }}" class="text-primary text-decoration-none fw-bold">Đăng nhập tại đây</a>
+            </p>
+        </div>
+    </div>
+    
+    <div class="text-center mt-4">
+        <a href="{{ url_for('index') }}" class="text-muted text-decoration-none small hover-primary">
+            <i class="fas fa-arrow-left me-1"></i> Quay lại trang chủ
+        </a>
+    </div>
+</div>
+{% endblock %}

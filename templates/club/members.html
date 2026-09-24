@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Thành Viên CLB - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Thành Viên Câu Lạc Bộ{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-3">
+    <div>
+        <h4 class="fw-bold mb-1 text-dark"><i class="fas fa-users text-primary me-2"></i>Thành Viên {{ club.club_name }}</h4>
+        <p class="text-muted small mb-0 x-small">Quản lý danh sách sinh viên đang sinh hoạt</p>
+    </div>
+</div>
+
+<!-- Search -->
+<!-- Search Bar (Compact) -->
+<div class="card border-0 mb-2 shadow-sm overflow-hidden" style="border-radius: 12px !important;">
+    <div class="card-body p-1">
+        <div class="input-group border-0 shadow-none">
+            <span class="input-group-text bg-transparent border-0 px-3"><i class="fas fa-search text-muted small"></i></span>
+            <input type="text" class="form-control border-0 bg-transparent py-2" placeholder="Tìm tên thành viên, mã SV hoặc email..." id="searchInput">
+        </div>
+    </div>
+</div>
+
+<!-- Members Table -->
+<div class="card border-0 shadow-sm rounded-3">
+    <div class="table-responsive">
+        {% if members %}
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light bg-opacity-50">
+                <tr style="font-size: 10px; text-transform: uppercase; color: #64748B;">
+                    <th class="px-4 py-2 border-0">Họ Tên</th>
+                    <th class="px-4 py-2 border-0 text-center">Chức vụ</th>
+                    <th class="px-4 py-2 border-0">Mã SV</th>
+                    <th class="px-4 py-2 border-0">Email</th>
+                    <th class="px-4 py-2 border-0">Ngày Tham Gia</th>
+                    <th class="px-4 py-2 border-0 text-center">Hành Động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in members %}
+                <tr style="font-size: 12.5px;">
+                    <td class="px-4 py-2">
+                        <strong class="text-dark">{{ member.student.full_name }}</strong>
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                        {% if member.position == 'Chủ nhiệm' %}
+                            <span class="badge bg-danger-light text-danger px-2 py-1 rounded-pill" style="font-size: 9px; letter-spacing: 0.5px;">CHỦ NHIỆM</span>
+                        {% else %}
+                            <span class="badge bg-secondary-light text-secondary px-2 py-1 rounded-pill" style="font-size: 9px; letter-spacing: 0.5px;">THÀNH VIÊN</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2 text-muted">
+                        {{ member.student.student_code }}
+                    </td>
+                    <td class="px-4 py-2 text-muted">
+                        {{ member.student.user.email }}
+                    </td>
+                    <td class="px-4 py-2 text-muted">
+                        {{ member.join_date.strftime('%d/%m/%Y') if member.join_date else '-' }}
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                        <form action="{{ url_for('remove_member', member_id=member.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Xóa thành viên {{ member.student.full_name }} khỏi danh sách?');">
+                            <button type="submit" class="btn btn-sm text-danger hvr-bg-danger-light p-1 px-2 rounded-2 border-0" title="Xóa thành viên">
+                                <i class="fas fa-user-minus"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="text-center p-5">
+            <i class="fas fa-users fa-3x mb-3" style="color: #ddd;"></i>
+            <p style="color: #999;">Chưa có thành viên nào</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/club/members.css') }}">
+
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

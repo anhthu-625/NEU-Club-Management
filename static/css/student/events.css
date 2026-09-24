@@ -1,0 +1,6 @@
+.bg-gradient-dark { background: linear-gradient(0deg, rgba(0,0,0,0.3) 0%, transparent 100%); }
+.backdrop-blur-sm { backdrop-filter: blur(4px); }
+.w-20 { width: 20px; text-align: center; }
+.hvr-text-primary:hover { color: var(--primary) !important; transition: 0.2s; }
+.hvr-grow { transition: 0.3s; }
+.hvr-grow:hover { transform: scale(1.02); }

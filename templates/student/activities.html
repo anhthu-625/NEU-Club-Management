@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Hoạt Động Của Tôi - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Hoạt Động Cá Nhân{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-5">
+    <div class="col-12">
+        <h2 class="display-6 fw-bold mb-1 text-dark">Lịch sử hoạt động</h2>
+        <p class="text-muted mb-0">Theo dõi tiến độ gia nhập CLB và tham gia sự kiện của bạn</p>
+    </div>
+</div>
+
+<div class="row g-5">
+    <!-- Club Applications Section -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="fas fa-paper-plane text-primary me-2"></i>Đơn Gia Nhập CLB
+                </h5>
+            </div>
+            <div class="card-body px-0 pb-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr class="bg-light">
+                                <th class="border-0 px-4 py-3 text-secondary small fw-bold">CÂU LẠC BỘ</th>
+                                <th class="border-0 px-4 py-3 text-secondary small fw-bold">NGÀY GỬI</th>
+                                <th class="border-0 px-4 py-3 text-center text-secondary small fw-bold">TRẠNG THÁI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for app in applications %}
+                            <tr class="border-bottom border-light">
+                                <td class="px-4 py-4">
+                                    <div class="fw-bold mb-1">
+                                        <a href="{{ url_for('club_detail', club_id=app.club.id) }}" class="text-dark text-decoration-none hover-primary">{{ app.club.club_name }}</a>
+                                    </div>
+                                    <div class="badge bg-primary-subtle text-primary border-0 rounded-pill px-2 py-1" style="font-size: 10px;">{{ app.club.field }}</div>
+                                </td>
+                                <td class="px-4 py-4 text-muted small">
+                                    {{ app.applied_at.strftime('%d/%m/%Y') }}
+                                </td>
+                                <td class="px-4 py-4 text-center">
+                                    {% if app.status == 'pending' %}
+                                    <span class="badge bg-warning-subtle text-warning border-0 px-3 py-2 rounded-pill fw-bold">Đang chờ</span>
+                                    {% elif app.status == 'approved' %}
+                                    <span class="badge bg-success-subtle text-success border-0 px-3 py-2 rounded-pill fw-bold">Đã duyệt</span>
+                                    {% elif app.status == 'rejected' %}
+                                    <span class="badge bg-danger-subtle text-danger border-0 px-3 py-2 rounded-pill fw-bold">Từ chối</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-5 text-muted">Hộp thư ứng tuyển trống.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Registrations Section -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="fas fa-calendar-check text-success me-2"></i>Sự Kiện Đã Đăng Ký
+                </h5>
+            </div>
+            <div class="card-body px-0 pb-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr class="bg-light">
+                                <th class="border-0 px-4 py-3 text-secondary small fw-bold">TÊN SỰ KIỆN</th>
+                                <th class="border-0 px-4 py-3 text-secondary small fw-bold">THỜI GIAN</th>
+                                <th class="border-0 px-4 py-3 text-center text-secondary small fw-bold">THAM GIA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reg in registrations %}
+                            <tr class="border-bottom border-light">
+                                <td class="px-4 py-4">
+                                    <div class="fw-bold mb-1">
+                                        <a href="{{ url_for('event_detail', event_id=reg.event.id) }}" class="text-dark text-decoration-none hover-primary">{{ reg.event.event_name }}</a>
+                                    </div>
+                                    <div class="text-muted small">
+                                        <i class="fas fa-university me-1"></i>
+                                        <a href="{{ url_for('club_detail', club_id=reg.event.club.id) }}" class="text-muted text-decoration-none hover-primary">{{ reg.event.club.club_name }}</a>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-muted small">
+                                    {{ reg.event.start_date.strftime('%d/%m/%Y') }}
+                                </td>
+                                <td class="px-4 py-4 text-center">
+                                    {% if reg.status == 'attended' %}
+                                    <span class="badge bg-success text-white border-0 px-3 py-2 rounded-pill fw-bold"><i class="fas fa-check me-1"></i>Đã tham gia</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary-subtle text-secondary border-0 px-3 py-2 rounded-pill fw-bold">Đã đăng ký</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-5 text-muted">Chưa có lịch sử sự kiện.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

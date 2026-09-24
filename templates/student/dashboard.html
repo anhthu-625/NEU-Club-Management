@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Bảng Điều Khiển - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Bảng Điều Khiển{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-3">
+    <div class="col-md-8">
+        <h4 class="fw-bold mb-1 text-dark">Chào mừng trở lại! 👋</h4>
+        <p class="text-muted small mb-0">Hôm nay có {{ unread_notifications }} thông báo mới.</p>
+    </div>
+    <div class="col-md-4 text-md-end mt-2 mt-md-0">
+        <a href="{{ url_for('student_clubs') }}" class="btn btn-primary shadow-sm btn-sm py-2">
+            <i class="fas fa-plus me-1"></i>Tham gia CLB mới
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-2 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 p-2 h-100 shadow-sm" style="background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);">
+            <div class="card-body py-1 px-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="bg-white text-primary rounded-2 shadow-xs p-1 px-2">
+                        <i class="fas fa-users" style="font-size: 13px;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0" style="color: #1E3A8A;">{{ club_count }}</h5>
+                </div>
+                <p class="text-muted mb-0 fw-bold uppercase" style="letter-spacing: 0.5px; font-size: 9px;">CLB Tham Gia</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 p-2 h-100 shadow-sm" style="background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);">
+            <div class="card-body py-1 px-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="bg-white text-success rounded-2 shadow-xs p-1 px-2">
+                        <i class="fas fa-calendar-check" style="font-size: 13px;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0" style="color: #064E3B;">{{ event_count }}</h5>
+                </div>
+                <p class="text-muted mb-0 fw-bold uppercase" style="letter-spacing: 0.5px; font-size: 9px;">Đã Đăng Ký</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 p-2 h-100 shadow-sm" style="background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);">
+            <div class="card-body py-1 px-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="bg-white text-warning rounded-2 shadow-xs p-1 px-2">
+                        <i class="fas fa-shopping-bag" style="font-size: 13px;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0" style="color: #78350F;">{{ order_count }}</h5>
+                </div>
+                <p class="text-muted mb-0 fw-bold uppercase" style="letter-spacing: 0.5px; font-size: 9px;">Sản Phẩm Đặt</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 p-2 h-100 bg-primary text-white shadow-md overflow-hidden position-relative" style="background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);">
+            <div class="card-body py-1 px-3 position-relative">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="bg-white bg-opacity-20 rounded-2 p-1 px-2 d-inline-flex">
+                        <i class="fas fa-bell" style="font-size: 13px;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-white">{{ unread_notifications }}</h5>
+                </div>
+                <p class="text-white-50 mb-0 fw-bold uppercase" style="letter-spacing: 0.5px; font-size: 9px;">Thông Báo</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Main Content (Left) -->
+    <div class="col-lg-8">
+        <!-- Club News Feed (Now central and more prominent) -->
+        <div class="mb-3">
+            <h5 class="fw-bold mb-0 text-dark">Tin Tức & Thông Báo</h5>
+            <p class="text-muted small mb-0 x-small">Cập nhật mới nhất từ các CLB bạn tham gia</p>
+        </div>
+        <div class="d-flex flex-column gap-3 mb-5">
+            {% for post in club_posts %}
+            <a href="{{ url_for('club_detail', club_id=post.club_id) }}" class="text-decoration-none">
+                <div class="card border-0 shadow-sm hvr-shadow-sm overflow-hidden p-0">
+                    <div class="card-body p-0">
+                        <div class="d-flex gap-0">
+                            {% if post.image_url %}
+                            <div class="flex-shrink-0 d-none d-sm-block" style="width: 140px;">
+                                <img src="{{ post.image_url }}" class="h-100 w-100" style="object-fit: cover;">
+                            </div>
+                            {% endif %}
+                            <div class="p-3 flex-grow-1 min-width-0">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    {% if post.club.logo_url %}
+                                    <img src="{{ post.club.logo_url }}" class="rounded-circle border" style="width: 20px; height: 20px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 20px; height: 20px; font-weight: bold; font-size: 8px;">
+                                        {{ post.club.club_name[0].upper() }}
+                                    </div>
+                                    {% endif %}
+                                    <span class="fw-bold text-dark x-small text-truncate" style="max-width: 150px;">{{ post.club.club_name }}</span>
+                                    <span class="ms-auto text-muted" style="font-size: 9px;">{{ post.created_at.strftime('%d/%m/%Y') }}</span>
+                                </div>
+                                <h6 class="fw-bold mb-2 text-primary" style="font-size: 15px;">{{ post.title }}</h6>
+                                <div class="text-muted mb-0 small text-truncate-3" style="line-height: 1.5;">{{ post.content | safe }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% else %}
+            <div class="card border-0 bg-light text-center py-5 rounded-4">
+                <i class="fas fa-bullhorn text-muted mb-3 fs-2 opacity-25"></i>
+                <p class="text-muted mb-0">Chưa có thông báo mới từ các CLB bạn tham gia.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- My Clubs Section (Moved down) -->
+        <div class="d-flex justify-content-between align-items-end mb-3 mt-4">
+            <div>
+                <h5 class="fw-bold mb-0">Câu Lạc Bộ Của Bạn</h5>
+                <p class="text-muted small mb-0 x-small">Các CLB bạn đang hoạt động</p>
+            </div>
+            <a href="{{ url_for('student_clubs') }}" class="btn btn-link text-primary p-0 fw-bold decoration-none small">Xem hết <i class="fas fa-arrow-right ms-1 small"></i></a>
+        </div>
+        
+        <div class="row g-3">
+            {% for club in my_clubs %}
+            <div class="col-md-6 col-xl-4">
+                <a href="{{ url_for('club_detail', club_id=club.id) }}" class="text-decoration-none">
+                    <div class="card border-0 p-1 h-100 hvr-shadow-sm">
+                        <div class="card-body p-3 text-center">
+                            {% if club.logo_url %}
+                            <img src="{{ club.logo_url }}" class="rounded-pill shadow-sm mb-3 border border-3 border-white" style="width: 60px; height: 60px; object-fit: cover;">
+                            {% else %}
+                            <div class="rounded-pill bg-primary text-white d-flex align-items-center justify-content-center shadow-sm mb-3 mx-auto border border-3 border-white" style="width: 60px; height: 60px; font-weight: bold; font-size: 20px;">
+                                {{ club.club_name[0].upper() }}
+                            </div>
+                            {% endif %}
+                            <h6 class="fw-bold mb-1 text-dark text-truncate small">{{ club.club_name }}</h6>
+                            <span class="badge bg-primary-subtle text-primary border-0 rounded-pill px-2 py-1" style="font-size: 9px;">{{ club.field }}</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="card border-0 bg-light text-center py-5 rounded-4">
+                    <i class="fas fa-users-slash text-muted mb-3 fs-3 opacity-50"></i>
+                    <p class="text-muted mb-0 small">Bạn chưa tham gia câu lạc bộ nào.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Sidebar Content (Right) -->
+    <div class="col-lg-4">
+        <!-- Suggested Events Section -->
+        <div class="mb-3">
+            <h5 class="fw-bold mb-0 text-dark">Sự Kiện Gợi Ý</h5>
+            <p class="text-muted small mb-0 x-small">Hoạt động sắp diễn ra</p>
+        </div>
+        
+        <div class="d-flex flex-column gap-3">
+            {% for event in upcoming_events %}
+            <div class="card border-0 shadow-sm overflow-hidden hvr-shadow-sm">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-warning-subtle text-warning border-0 px-3 py-1 rounded-pill x-small fw-bold">🔥 Sắp diễn ra</span>
+                    </div>
+                    <h6 class="fw-bold mb-2 text-dark" style="line-height: 1.4; font-size: 14px;">
+                        <a href="{{ url_for('event_detail', event_id=event.id) }}" class="text-dark text-decoration-none hover-primary">{{ event.event_name }}</a>
+                    </h6>
+                    <div class="d-flex flex-column gap-2 mb-3 x-small text-muted font-medium">
+                        <span><i class="far fa-calendar-alt text-primary me-2"></i>{{ event.start_date.strftime('%H:%M %d/%m/%Y') }}</span>
+                    </div>
+                    <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-primary btn-sm w-100 rounded-pill fw-bold py-2 shadow-sm">Đăng ký ngay</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="card border-0 bg-light text-center py-5 rounded-4">
+                <p class="text-muted mb-0 small">Hiện chưa có sự kiện nào gần nhất.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student/dashboard.css') }}">
+{% endblock %}

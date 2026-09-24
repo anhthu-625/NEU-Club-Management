@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Đăng Sản Phẩm Mới - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Thêm Sản Phẩm Mới{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="page-title mb-0">
+        <i class="fas fa-box-open me-2"></i>Đăng Sản Phẩm Mới
+    </h2>
+    <a href="{{ url_for('club_products') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Quay lại Thư Viện
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-5">
+                <form action="{{ url_for('create_product') }}" method="POST">
+                    <!-- Product Info -->
+                    <div class="mb-4">
+                        <label for="product_name" class="form-label fw-bold">Tên Sản Phẩm <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-lg" id="product_name" name="product_name" required placeholder="Ví dụ: Áo Đồng Phục CLB NEU">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="description" class="form-label fw-bold">Nội Dung Mô Tả</label>
+                        <textarea class="form-control" id="description" name="description" rows="5" placeholder="Thông tin chi tiết về đặc điểm sản phẩm, chất lượng, hướng dẫn.."></textarea>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="price" class="form-label fw-bold">Đơn Giá Bán (VNĐ) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control form-control-lg" id="price" name="price" required min="1000" step="1" placeholder="Ví dụ: 150000">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="quantity" class="form-label fw-bold">Số Lượng Kho Hàng</label>
+                            <input type="number" class="form-control form-control-lg" id="quantity" name="quantity" min="0" placeholder="0">
+                        </div>
+                    </div>
+
+                    <!-- Image URL Field -->
+                     <div class="mb-4">
+                        <label for="image_url" class="form-label fw-bold">Link Ảnh Bìa (Tùy Chọn)</label>
+                        <input type="url" class="form-control" id="image_url" name="image_url" placeholder="Gắn URL ảnh minh hoạ của sản phẩm">
+                        <small class="text-muted">Tính năng lấy ảnh từ Local Upload sẽ có tùy chọn sau.</small>
+                    </div>
+
+                    <div class="d-grid mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg p-3" style="font-weight: 600;">
+                            <i class="fas fa-upload me-2"></i>Đăng Sản Phẩm Mới Lên Hệ Thống
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

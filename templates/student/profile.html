@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Thông Tin Cá Nhân - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Thông Tin Cá Nhân{% endblock %}
+
+{% block content %}
+<h2 class="page-title mb-4">
+    <i class="fas fa-user me-2"></i>Thông Tin Cá Nhân
+</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h5 style="color: #333; font-weight: 600; margin-bottom: 20px;">
+                            <i class="fas fa-user-circle me-2"></i>Thông tin cơ bản
+                        </h5>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p style="color: #999; font-size: 12px; margin-bottom: 5px;">Họ và Tên</p>
+                        <p style="color: #333; font-weight: 500;">{{ student.full_name or 'Chưa cập nhật' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p style="color: #999; font-size: 12px; margin-bottom: 5px;">Mã Sinh Viên</p>
+                        <p style="color: #333; font-weight: 500;">{{ student.student_code or 'Chưa cập nhật' }}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p style="color: #999; font-size: 12px; margin-bottom: 5px;">Email</p>
+                        <p style="color: #333; font-weight: 500;">{{ current_user.email }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p style="color: #999; font-size: 12px; margin-bottom: 5px;">Số Điện Thoại</p>
+                        <p style="color: #333; font-weight: 500;">{{ student.phone or 'Chưa cập nhật' }}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p style="color: #999; font-size: 12px; margin-bottom: 5px;">Khóa Học</p>
+                        <p style="color: #333; font-weight: 500;">{{ student.university_year or 'Chưa cập nhật' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p style="color: #999; font-size: 12px; margin-bottom: 5px;">Ngành Học</p>
+                        <p style="color: #333; font-weight: 500;">{{ student.major or 'Chưa cập nhật' }}</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <p style="color: #999; font-size: 12px; margin-bottom: 5px;">Địa Chỉ</p>
+                        <p style="color: #333; font-weight: 500;">{{ student.address or 'Chưa cập nhật' }}</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <a href="{{ url_for('student_profile_edit') }}" class="btn btn-primary">
+                        <i class="fas fa-edit me-2"></i>Chỉnh Sửa Thông Tin
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body p-4 text-center">
+                {% if student.avatar_url %}
+                <div style="width: 120px; height: 120px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden; border: 4px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    <img src="{{ student.avatar_url }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                {% else %}
+                <div style="width: 80px; height: 80px; background: #6A9FDB; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 36px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    {{ current_user.username[0].upper() }}
+                </div>
+                {% endif %}
+                <h5 style="color: #333; font-weight: 600; margin-bottom: 5px;">{{ current_user.username }}</h5>
+                <p style="color: #999; font-size: 12px; margin-bottom: 20px;">Sinh viên</p>
+
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="font-size: 24px; color: #2563EB; font-weight: bold;">0</div>
+                    <p style="color: #666; font-size: 12px; margin: 0;">Điểm Đoàn</p>
+                </div>
+
+                <div style="text-align: left; font-size: 12px;">
+                    <div style="margin-bottom: 10px;">
+                        <span style="color: #999;">Tham gia: </span>
+                        <span style="color: #333; font-weight: 500;">
+                            {% if student.created_at %}
+                                {{ student.created_at.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                Chưa cập nhật
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

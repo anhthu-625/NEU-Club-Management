@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Thông Báo Cá Nhân - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Thông Báo Hệ Thống{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="d-flex justify-content-between align-items-end mb-5">
+            <div>
+                <h2 class="display-6 fw-bold mb-1 text-dark">Thông báo hệ thống</h2>
+                <p class="text-muted mb-0">Theo dõi các cập nhật mới nhất về hoạt động của bạn</p>
+            </div>
+            <form action="{{ url_for('read_all_notifications') }}" method="POST">
+                <button type="submit" class="btn btn-outline-primary shadow-sm rounded-pill px-4 fw-bold">
+                    <i class="fas fa-check-double me-2"></i>Đánh dấu tất cả là đã đọc
+                </button>
+            </form>
+        </div>
+
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="list-group list-group-flush">
+                {% for n in notifications %}
+                <div class="list-group-item p-4 border-0 {{ 'bg-primary-subtle border-start border-primary border-4' if not n.is_read else '' }} transition-all hover-bg-light">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="rounded-4 d-flex align-items-center justify-content-center shadow-sm" style="width: 56px; height: 56px; min-width: 56px; background: white;">
+                                {% if n.notification_type == 'success' %}
+                                <i class="fas fa-check-circle text-success fs-3"></i>
+                                {% elif n.notification_type == 'danger' %}
+                                <i class="fas fa-exclamation-circle text-danger fs-3"></i>
+                                {% else %}
+                                <i class="fas fa-info-circle text-primary fs-3"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1 fs-5">{{ n.title }}</h6>
+                                <p class="text-secondary mb-2">{{ n.message }}</p>
+                                <div class="d-flex align-items-center gap-3">
+                                    <small class="text-muted small">
+                                        <i class="far fa-clock me-1"></i>{{ n.created_at.strftime('%H:%M %d/%m/%Y') }}
+                                    </small>
+                                    {% if not n.is_read %}
+                                    <span class="badge bg-primary rounded-pill px-2 py-1" style="font-size: 10px;">MỚI</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="bg-light rounded-circle d-inline-flex p-4 mb-3">
+                        <i class="fas fa-bell-slash text-muted fs-1"></i>
+                    </div>
+                    <p class="text-muted fw-medium">Hộp thư thông báo của bạn hiện đang trống.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+{% endblock %}

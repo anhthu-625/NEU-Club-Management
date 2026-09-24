@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% set hide_sidebar = True %}
+
+{% block title %}Chào mừng đến với NEU Connect - Hệ thống quản lý CLB{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container overflow-visible">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7 hero-content fade-in-up">
+                <div class="badge bg-primary-soft text-primary rounded-pill px-3 py-2 mb-3 fw-bold small">
+                    <i class="fas fa-sparkles me-2"></i> Nền tảng kết nối CLB NEU số 1
+                </div>
+                <h1 class="hero-title text-dark">
+                    Nâng Tầm Hoạt Động <br> 
+                    <span class="text-gradient">Câu Lạc Bộ NEU</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Kiến tạo môi trường năng động cho sinh viên Kinh tế Quốc dân. Khám phá đam mê, kết nối đồng đội và quản lý CLB chuyên nghiệp chỉ trong vài cú nhấp chuột.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    {% if not current_user.is_authenticated %}
+                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-premium">
+                            Bắt đầu ngay <i class="fas fa-arrow-right ms-2 small"></i>
+                        </a>
+                        <a href="{{ url_for('register') }}" class="btn btn-outline-dark btn-lg rounded-pill px-4">
+                            Đăng ký
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('student_dashboard') }}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-premium">
+                            Dashboard <i class="fas fa-tachometer-alt ms-2 small"></i>
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-5 d-flex align-items-center gap-4 opacity-75">
+                    <div class="text-center">
+                        <h4 class="fw-bold mb-0">100+</h4>
+                        <small class="text-muted fw-bold">Câu lạc bộ</small>
+                    </div>
+                    <div class="vr"></div>
+                    <div class="text-center">
+                        <h4 class="fw-bold mb-0">10k+</h4>
+                        <small class="text-muted fw-bold">Thành viên</small>
+                    </div>
+                    <div class="vr"></div>
+                    <div class="text-center">
+                        <h4 class="fw-bold mb-0">500+</h4>
+                        <small class="text-muted fw-bold">Sự kiện/năm</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-5 d-none d-lg-block fade-in-up delay-1">
+                <div class="hero-image-container">
+                    <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&q=80&w=2070" class="hero-image" alt="NEU Student Life">
+                    <div class="floating-badge glass-card fade-in-up delay-2">
+                        <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">98% Hài lòng</h6>
+                            <small class="text-muted">Đánh giá từ SV</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- Features Grid -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4 fade-in-up">
+            <div class="feature-card">
+                <div class="feature-icon bg-primary-soft text-primary">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Khám Phá Đam Mê</h4>
+                <p class="text-secondary mb-0">Dễ dàng tìm kiếm và tham gia vào hàng trăm CLB từ học thuật, nghệ thuật đến thể thao phù hợp với sở thích của bạn.</p>
+            </div>
+        </div>
+        <div class="col-md-4 fade-in-up delay-1">
+            <div class="feature-card">
+                <div class="feature-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Sự Kiện Sôi Động</h4>
+                <p class="text-secondary mb-0">Luôn cập nhật các workshop, cuộc thi và hoạt động ngoại khóa hấp dẫn nhất tại NEU. Đăng ký tham gia chỉ với 1 chạm.</p>
+            </div>
+        </div>
+        <div class="col-md-4 fade-in-up delay-2">
+            <div class="feature-card">
+                <div class="feature-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Cửa Hàng Độc Quyền</h4>
+                <p class="text-secondary mb-0">Sở hữu những món đồ (Merch) cực chất: áo phông, sticker, sổ tay độc quyền từ các CLB mà bạn yêu thích.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Clubs Section -->
+    {% if clubs %}
+    <div class="pt-5 fade-in-up delay-3">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="fw-bold mb-2">Câu Lạc Bộ Tiêu Biểu</h2>
+                <p class="text-muted mb-0">Khám phá cộng đồng sinh viên năng động nhất</p>
+            </div>
+            <a href="{{ url_for('student_clubs') }}" class="btn btn-outline-primary rounded-pill px-4">
+                Xem tất cả <i class="fas fa-arrow-right ms-2 small"></i>
+            </a>
+        </div>
+        
+        <div class="row g-4">
+            {% for club in clubs %}
+            <div class="col-md-6 col-lg-4">
+                <div class="club-card">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        {% if club.logo_url %}
+                        <img src="{{ club.logo_url }}" class="rounded-circle border" style="width: 50px; height: 50px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-circle bg-primary-soft text-primary d-flex align-items-center justify-content-center shadow-sm" style="width: 50px; height: 50px; font-weight: bold; font-size: 1.25rem;">
+                            {{ club.club_name[0].upper() }}
+                        </div>
+                        {% endif %}
+                        <div>
+                            <span class="club-badge mb-1 d-inline-block">{{ club.field }}</span>
+                            <h6 class="fw-bold mb-0 text-dark">{{ club.club_name }}</h6>
+                        </div>
+                    </div>
+                    <p class="text-muted small mb-4 line-clamp-2">
+                        {{ club.description or 'Hành trình phát triển kỹ năng và kết nối bạn bè tại NEU.' }}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                        <small class="text-muted"><i class="fas fa-users me-1"></i> {{ club.members|length }} thành viên</small>
+                        <a href="{{ url_for('club_detail', club_id=club.id) }}" class="fw-bold text-primary text-decoration-none small">
+                            Tham gia ngay <i class="fas fa-chevron-right ms-1" style="font-size: 0.7rem;"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Global Community CTA -->
+    <div class="mt-5 pt-5 fade-in-up">
+        <div class="card overflow-hidden border-0 rounded-lg shadow-premium" style="background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);">
+            <div class="card-body p-5 position-relative">
+                <div class="row align-items-center">
+                    <div class="col-lg-8 text-white">
+                        <h2 class="fw-bold mb-3">Sẵn sàng để bắt đầu hành trình của bạn?</h2>
+                        <p class="text-white-50 mb-0">Gia nhập hàng nghìn sinh viên khác và trải nghiệm đời sống sinh viên NEU trọn vẹn nhất.</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                        {% if not current_user.is_authenticated %}
+                            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-premium">Đăng Ký Tài Khoản</a>
+                        {% else %}
+                            <a href="{{ url_for('student_clubs') }}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-premium">Khám Phá Ngay</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- Abstract deco -->
+                <div class="position-absolute top-0 end-0 p-5 mt-5 opacity-10 d-none d-lg-block">
+                    <i class="fas fa-rocket fa-6x text-white"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Sự Kiện - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Sự Kiện{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="page-title mb-1"><i class="fas fa-calendar-star me-2 text-primary"></i>Sự Kiện Nổi Bật</h2>
+        <p class="text-muted mb-0">Tham gia các hoạt động ngoại khóa, workshop và cuộc thi sôi động tại NEU</p>
+    </div>
+</div>
+
+<!-- Search & Filter Bar (Compact) -->
+<div class="card border-0 mb-3 shadow-sm overflow-hidden" style="border-radius: 12px !important;">
+    <div class="card-body p-2">
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="input-group border-0 shadow-none">
+                    <span class="input-group-text bg-transparent border-0 px-3"><i class="fas fa-search text-muted small"></i></span>
+                    <input type="text" class="form-control border-0 bg-transparent py-2" placeholder="Tìm tên sự kiện hoặc địa điểm..." id="searchInput">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Event Cards Grid -->
+{% if events %}
+<div class="row g-4" id="eventGrid">
+    {% for event in events %}
+    <div class="col-md-6 col-xl-4 event-item">
+        <div class="card h-100 border-0 overflow-hidden shadow-sm">
+            <!-- Compact Event Banner -->
+            <div class="position-relative" style="height: 100px; background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);">
+                <div class="position-absolute top-0 end-0 p-2">
+                    <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-2 py-1 small backdrop-blur-sm shadow-sm" style="font-size: 10px;">
+                        <i class="fas fa-users me-1"></i> {{ event.max_participants or '?' }}
+                    </span>
+                </div>
+                <div class="position-absolute bottom-0 start-0 p-2 w-100 bg-gradient-dark d-flex justify-content-between align-items-center">
+                    <span class="badge {{ 'bg-secondary' if event.is_ended else 'bg-primary' }} text-white rounded-pill px-2 py-1 small fw-bold" style="font-size: 10px;">
+                        <i class="far fa-calendar-alt me-1"></i>
+                        {{ event.start_date.strftime('%d/%m/%Y') if event.start_date else 'Sắp tới' }}
+                    </span>
+                    {% if event.is_ended %}
+                    <span class="badge bg-danger text-white rounded-pill px-2 py-1 small fw-bold" style="font-size: 10px;">
+                        ĐÃ KẾT THÚC
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card-body p-3 d-flex flex-column">
+                <h6 class="fw-bold mb-2 text-truncate-2" style="line-height: 1.4; height: 2.3rem;">
+                    <a href="{{ url_for('event_detail', event_id=event.id) }}" class="text-dark text-decoration-none hover-primary">{{ event.event_name }}</a>
+                </h6>
+                
+                <div class="d-flex flex-column gap-1 mb-3">
+                    <div class="text-muted d-flex align-items-center" style="font-size: 11px;">
+                        <i class="fas fa-map-marker-alt text-primary me-2 w-15"></i>
+                        <span class="text-truncate">{{ event.location or 'Trực tuyến' }}</span>
+                    </div>
+                </div>
+
+                <div class="mt-auto">
+                    {% if event.is_ended %}
+                    <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-secondary w-100 py-2 rounded-pill shadow-sm hvr-grow small">
+                        Xem chi tiết
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-primary w-100 py-2 rounded-pill shadow-sm hvr-grow small">
+                        Xem & Đăng Ký
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card border-0 bg-light text-center p-5 rounded-5 mt-5">
+    <div class="py-5">
+        <i class="fas fa-calendar-slash fa-4x text-muted mb-4 opacity-25"></i>
+        <h4 class="text-muted fw-bold">Hiện chưa có sự kiện nào</h4>
+        <p class="text-muted">Đừng quên quay lại sau để cập nhật các hoạt động mới nhất!</p>
+    </div>
+</div>
+{% endif %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student/events.css') }}">
+
+<script>
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    const term = e.target.value.toLowerCase();
+    const items = document.querySelectorAll('.event-item');
+    items.forEach(item => {
+        const text = item.innerText.toLowerCase();
+        item.style.display = text.includes(term) ? '' : 'none';
+    });
+});
+</script>
+
+{% endblock %}

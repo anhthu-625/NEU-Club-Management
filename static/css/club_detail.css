@@ -1,0 +1,12 @@
+    .hvr-grow { transition: transform 0.2s; }
+    .hvr-grow:hover { transform: scale(1.05); }
+    .hvr-shadow:hover { box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important; }
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        line-clamp: 2;
+        overflow: hidden;
+    }
+    .x-small { font-size: 11px; }
+    .hover-primary:hover { color: var(--bs-primary) !important; }

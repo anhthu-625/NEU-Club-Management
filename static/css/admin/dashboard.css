@@ -1,0 +1,5 @@
+.hvr-grow { transition: transform 0.2s; }
+.hvr-grow:hover { transform: scale(1.02); }
+.uppercase { text-transform: uppercase; letter-spacing: 0.5px; }
+.btn-white { background: white; border: 1px solid rgba(0,0,0,0.05); color: #1E293B; }
+.btn-white:hover { background: #f8fafc; }

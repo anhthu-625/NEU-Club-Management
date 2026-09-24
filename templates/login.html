@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% set hide_sidebar = True %}
+
+{% block title %}Đăng nhập - NEU Connect{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="login-container fade-in-up">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-logo">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h3 class="fw-bold text-dark mb-1">Chào mừng trở lại!</h3>
+            <p class="text-muted small">Vui lòng đăng nhập để tiếp tục</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="mb-3">
+                <label for="username" class="form-label">Tên đăng nhập</label>
+                <div class="position-relative">
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Nhập username của bạn" required>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="d-flex justify-content-between">
+                    <label for="password" class="form-label">Mật khẩu</label>
+                    <a href="#" class="small text-primary text-decoration-none fw-bold">Quên mật khẩu?</a>
+                </div>
+                <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 btn-login">
+                Đăng Nhập <i class="fas fa-sign-in-alt ms-2"></i>
+            </button>
+        </form>
+
+        <div class="text-center mt-4 pt-2 border-top">
+            <p class="text-muted small mb-0">Chưa có tài khoản? 
+                <a href="{{ url_for('register') }}" class="text-primary text-decoration-none fw-bold">Đăng ký ngay</a>
+            </p>
+        </div>
+    </div>
+    
+    <div class="text-center mt-4">
+        <a href="{{ url_for('index') }}" class="text-muted text-decoration-none small hover-primary">
+            <i class="fas fa-arrow-left me-1"></i> Quay lại trang chủ
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống quản lý và kết nối CLB - sinh viên Neu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        {% if not hide_sidebar %}
+        <div class="sidebar">
+            <div class="logo">
+                <h5>HỆ THỐNG CLB</h5>
+                <p>{% if current_user.is_authenticated %}{{ current_user.user_type }}{% else %}Sinh viên{% endif %}</p>
+            </div>
+            <nav class="sidebar-nav">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.is_student() %}
+                        <div class="nav-item">
+                            <a href="{{ url_for('student_dashboard') }}" class="nav-link {% if request.endpoint == 'student_dashboard' %}active{% endif %}">
+                                <i class="fas fa-home"></i> Trang chủ
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('student_profile') }}" class="nav-link {% if request.endpoint and 'profile' in request.endpoint %}active{% endif %}">
+                                <i class="fas fa-user"></i> Hồ sơ cá nhân
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('student_activities') }}" class="nav-link {% if request.endpoint == 'student_activities' %}active{% endif %}">
+                                <i class="fas fa-tasks"></i> Hoạt động của tôi
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('student_clubs') }}" class="nav-link {% if request.endpoint == 'student_clubs' %}active{% endif %}">
+                                <i class="fas fa-users"></i> Khám phá CLB
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('student_events') }}" class="nav-link {% if request.endpoint == 'student_events' %}active{% endif %}">
+                                <i class="fas fa-calendar"></i> Sự kiện
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('products_list') }}" class="nav-link {% if 'product' in request.endpoint|string %}active{% endif %}">
+                                <i class="fas fa-shopping-bag"></i> Cửa hàng
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('cart') }}" class="nav-link {% if request.endpoint == 'cart' %}active{% endif %}">
+                                <i class="fas fa-shopping-cart"></i> Giỏ hàng
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('orders_list') }}" class="nav-link {% if request.endpoint == 'orders_list' %}active{% endif %}">
+                                <i class="fas fa-receipt"></i> Đơn hàng
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('student_club_register') }}" class="nav-link {% if request.endpoint == 'student_club_register' %}active{% endif %}">
+                                <i class="fas fa-edit"></i> Đăng ký CLB
+                            </a>
+                        </div>
+                    {% elif current_user.is_club() %}
+                        <div class="nav-item">
+                            <a href="{{ url_for('club_dashboard') }}" class="nav-link {% if request.endpoint == 'club_dashboard' %}active{% endif %}">
+                                <i class="fas fa-home"></i> Trang chủ
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('club_profile') }}" class="nav-link {% if request.endpoint == 'club_profile' %}active{% endif %}">
+                                <i class="fas fa-user"></i> Thông tin CLB
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('club_products') }}" class="nav-link {% if 'product' in request.endpoint|string %}active{% endif %}">
+                                <i class="fas fa-box"></i> Sản phẩm
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('club_posts') }}" class="nav-link {% if 'post' in request.endpoint|string %}active{% endif %}">
+                                <i class="fas fa-edit"></i> Bài viết
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('club_orders') }}" class="nav-link {% if 'order' in request.endpoint|string %}active{% endif %}">
+                                <i class="fas fa-shopping-cart"></i> Đơn hàng
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('club_events') }}" class="nav-link {% if 'event' in request.endpoint|string %}active{% endif %}">
+                                <i class="fas fa-calendar-alt"></i> Sự kiện
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('club_applications') }}" class="nav-link {% if request.endpoint == 'club_applications' %}active{% endif %}">
+                                <i class="fas fa-file-signature"></i> Duyệt đơn apply
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('club_reports') }}" class="nav-link {% if request.endpoint == 'club_reports' %}active{% endif %}">
+                                <i class="fas fa-chart-bar"></i> Báo cáo
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('club_members') }}" class="nav-link {% if request.endpoint == 'club_members' %}active{% endif %}">
+                                <i class="fas fa-user-tie"></i> Thành viên
+                            </a>
+                        </div>
+                    {% elif current_user.is_admin() %}
+                        <div class="nav-item">
+                            <a href="{{ url_for('admin_dashboard') }}" class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+                                <i class="fas fa-home"></i> Trang chủ
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('admin_events') }}" class="nav-link {% if request.endpoint == 'admin_events' %}active{% endif %}">
+                                <i class="fas fa-calendar-check"></i> Duyệt Sự Kiện
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('admin_products') }}" class="nav-link {% if request.endpoint == 'admin_products' %}active{% endif %}">
+                                <i class="fas fa-box"></i> Duyệt Sản Phẩm
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('admin_clubs') }}" class="nav-link {% if request.endpoint == 'admin_clubs' %}active{% endif %}">
+                                <i class="fas fa-users"></i> Câu lạc bộ
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ url_for('admin_reports') }}" class="nav-link {% if request.path == url_for('admin_reports') %}active{% endif %}">
+                                <i class="fas fa-file-alt"></i> Báo cáo
+                            </a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="nav-item">
+                        <a href="{{ url_for('index') }}" class="nav-link">
+                            <i class="fas fa-home"></i> Trang chủ
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{{ url_for('login') }}" class="nav-link">
+                            <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{{ url_for('register') }}" class="nav-link">
+                            <i class="fas fa-user-plus"></i> Đăng ký
+                        </a>
+                {% endif %}
+            </nav>
+
+            {% if current_user.is_authenticated %}
+            <div class="sidebar-footer">
+                <div class="nav-item">
+                    <a href="{{ url_for('change_credentials') }}" class="nav-link {% if request.endpoint == 'change_credentials' %}active{% endif %}">
+                        <i class="fas fa-lock"></i> Mật khẩu
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ url_for('logout') }}" class="nav-link text-danger">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Main container -->
+        <div class="main-container {% if hide_sidebar %}no-sidebar{% endif %}">
+            <!-- Header -->
+            {% if not hide_sidebar %}
+            <div class="top-header">
+                <div class="header-left">
+                    {% block page_title %}{% endblock %}
+                </div>
+                <div class="header-right">
+                    <a href="{{ url_for('notifications_list') }}" class="notification-icon position-relative text-dark text-decoration-none me-3">
+                        <i class="fas fa-bell"></i>
+                        {% if unread_count > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; padding: 0.35em 0.65em; border: 2px solid #fff;">
+                            {{ unread_count if unread_count < 100 else '99+' }}
+                        </span>
+                        {% endif %}
+                    </a>
+                    {% if current_user.is_authenticated %}
+                        {% set avatar = None %}
+                        {% if current_user.is_student() and current_user.student_profile and current_user.student_profile.avatar_url %}
+                            {% set avatar = current_user.student_profile.avatar_url %}
+                        {% elif current_user.is_club() and current_user.club_profile and current_user.club_profile.logo_url %}
+                            {% set avatar = current_user.club_profile.logo_url %}
+                        {% endif %}
+
+                        {% if avatar %}
+                        <div class="user-avatar border border-2 shadow-sm" title="{{ current_user.username }}">
+                            <img src="{{ avatar }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        </div>
+                        {% else %}
+                        <div class="user-avatar" title="{{ current_user.username or 'User' }}">
+                            {{ (current_user.username[0].upper() if current_user.username else '?') }}
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Content area -->
+            <div class="content-area">
+                <!-- Flash messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Page content -->
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

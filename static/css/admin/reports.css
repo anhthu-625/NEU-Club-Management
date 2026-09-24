@@ -1,0 +1,4 @@
+.bg-success-light { background-color: rgba(16, 185, 129, 0.1); }
+.bg-danger-light { background-color: rgba(239, 68, 68, 0.1); }
+.bg-warning-light { background-color: rgba(245, 158, 11, 0.1); }
+.uppercase { text-transform: uppercase; }

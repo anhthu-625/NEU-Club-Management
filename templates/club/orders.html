@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Đơn Hàng CLB - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Quản Lý Đơn Đặt Sản Phẩm{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h3 class="fw-bold mb-1 text-dark"><i class="fas fa-file-invoice-dollar text-primary me-2"></i>Duyệt & Xử Lý Đơn Hàng</h3>
+        <p class="text-muted small mb-0">Quản lý các yêu cầu mua hàng và trạng thái giao vận</p>
+    </div>
+    <a href="{{ url_for('club_dashboard') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 fw-bold">
+        <i class="fas fa-arrow-left me-1"></i>Trở Về
+    </a>
+</div>
+
+<!-- Search Bar (Compact) -->
+<div class="card border-0 mb-3 shadow-sm rounded-3">
+    <div class="card-body p-2">
+        <div class="input-group input-group-sm border-0">
+            <span class="input-group-text bg-transparent border-0 px-3"><i class="fas fa-search text-muted small"></i></span>
+            <input type="text" class="form-control border-0 bg-transparent py-2" style="font-size: 13px;" placeholder="Tìm nhanh theo mã đơn (#ORD-...), tên khách hàng hoặc số điện thoại..." id="searchInput">
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light bg-opacity-50">
+                    <tr style="font-size: 11px; text-transform: uppercase; color: #64748B;">
+                        <th class="px-4 py-3 border-0">Mã Đơn / Khách Mua</th>
+                        <th class="px-4 py-3 border-0">Sản Phẩm (SL)</th>
+                        <th class="px-4 py-3 border-0 text-end">Tổng Tiền</th>
+                        <th class="px-4 py-3 border-0 text-center">Trạng Thái</th>
+                        <th class="px-4 py-3 border-0 text-center">Xử Lý</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr style="font-size: 12px;">
+                        <td class="px-4 py-2">
+                            <div class="text-primary fw-bold mb-1">#ORD-{{ order.id }}</div>
+                            <div class="d-flex align-items-center mb-1">
+                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-2 fw-bold" style="width: 20px; height: 20px; font-size: 9px;">
+                                    {{ order.shipping_name[:1] if order.shipping_name else order.student.full_name[:1] }}
+                                </div>
+                                <span class="fw-bold text-dark">{{ order.shipping_name or order.student.full_name }}</span>
+                            </div>
+                            <div class="text-muted" style="font-size: 10.5px;">
+                                <i class="fas fa-phone-alt me-1 opacity-50"></i> {{ order.shipping_phone or order.student.phone }}
+                            </div>
+                            <div class="text-muted text-truncate" style="max-width: 180px; font-size: 10.5px;" title="{{ order.shipping_address or order.student.address }}">
+                                <i class="fas fa-map-marker-alt me-1 opacity-50"></i> {{ order.shipping_address or order.student.address }}
+                            </div>
+                            <div class="mt-1">
+                                <span class="text-muted" style="font-size: 10px;">{{ order.order_date.strftime('%H:%M - %d/%m/%y') }}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2">
+                            <ul class="list-unstyled mb-0" style="max-height: 80px; overflow-y: auto;">
+                                {% for item in order.order_items %}
+                                <li class="text-muted text-truncate" style="max-width: 220px; font-size: 11.5px;" title="{{ item.product.product_name }}">
+                                    <span class="fw-bold text-dark">{{ item.quantity }}x</span> {{ item.product.product_name }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td class="px-4 py-2 text-end">
+                            <span class="fw-bold text-dark" style="font-size: 13px;">{{ "{:,.0f}".format(order.total_price) }} ₫</span>
+                        </td>
+                        <td class="px-4 py-2 text-center">
+                            {% if order.status == 'pending' %}
+                            <span class="badge bg-warning-light text-warning px-2 py-1 rounded-pill" style="font-size: 9px;"><i class="fas fa-clock me-1"></i>Chờ xác nhận</span>
+                            {% elif order.status == 'confirmed' %}
+                            <span class="badge bg-info-light text-info px-2 py-1 rounded-pill" style="font-size: 9px;"><i class="fas fa-box me-1"></i>Đã chốt</span>
+                            {% elif order.status == 'shipped' %}
+                            <span class="badge bg-primary-light text-primary px-2 py-1 rounded-pill" style="font-size: 9px;"><i class="fas fa-truck-fast me-1"></i>Đang giao</span>
+                            {% elif order.status == 'delivered' %}
+                            <span class="badge bg-success-light text-success px-2 py-1 rounded-pill" style="font-size: 9px;"><i class="fas fa-check-double me-1"></i>Hoàn tất</span>
+                            {% elif order.status == 'cancelled' %}
+                            <span class="badge bg-danger-light text-danger px-2 py-1 rounded-pill" style="font-size: 9px;"><i class="fas fa-ban me-1"></i>Bị hủy</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="orderActions{{ order.id }}" data-bs-toggle="dropdown" aria-expanded="false" {% if order.status in ['delivered', 'cancelled'] %}disabled{% endif %}>
+                                    Đổi Trạng Thái
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="orderActions{{ order.id }}">
+                                    {% if order.status == 'pending' %}
+                                    <li>
+                                        <form action="{{ url_for('update_order_status', order_id=order.id, action='confirm') }}" method="POST">
+                                            <button type="submit" class="dropdown-item text-info fw-bold"><i class="fas fa-check-circle me-2"></i>Chốt đơn hàng</button>
+                                        </form>
+                                    </li>
+                                    {% endif %}
+                                    
+                                    {% if order.status in ['pending', 'confirmed'] %}
+                                    <li>
+                                        <form action="{{ url_for('update_order_status', order_id=order.id, action='ship') }}" method="POST">
+                                            <button type="submit" class="dropdown-item text-primary fw-bold"><i class="fas fa-truck me-2"></i>Chuyển Đang Giao</button>
+                                        </form>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form action="{{ url_for('update_order_status', order_id=order.id, action='cancel') }}" method="POST" onsubmit="return confirm('Xác nhận huỷ đơn này và hoàn lại kho?');">
+                                            <button type="submit" class="dropdown-item text-danger fw-bold"><i class="fas fa-times-circle me-2"></i>Huỷ / Hết Hàng</button>
+                                        </form>
+                                    </li>
+                                    {% endif %}
+                                    
+                                    {% if order.status == 'shipped' %}
+                                    <li>
+                                        <form action="{{ url_for('update_order_status', order_id=order.id, action='deliver') }}" method="POST">
+                                            <button type="submit" class="dropdown-item text-success fw-bold"><i class="fas fa-box-open me-2"></i>Đã Giao Thành Công</button>
+                                        </form>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-receipt fa-3x mb-3" style="color: #e0e0e0;"></i>
+                                <p class="mb-0">Gian hàng của bạn chưa phát sinh đơn mua hàng nào.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

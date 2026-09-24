@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Lịch Sử Đơn Hàng - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Đơn Mua Hàng Của Bạn{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="page-title mb-0">
+        <i class="fas fa-receipt me-2"></i>Lịch Sử Mua Hàng
+    </h2>
+    <a href="{{ url_for('products_list') }}" class="btn btn-outline-primary">
+        <i class="fas fa-shopping-bag me-1"></i> Mua sắm tiếp
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        {% if orders %}
+        <div class="accordion" id="ordersAccordion">
+            {% for order in orders %}
+            <div class="accordion-item border-0 mb-3 shadow-sm rounded-4 overflow-hidden">
+                <h2 class="accordion-header" id="heading{{ order.id }}">
+                    <button class="accordion-button {% if loop.index > 1 %}collapsed{% endif %} py-4 px-4 bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ order.id }}" aria-expanded="{% if loop.index == 1 %}true{% else %}false{% endif %}" aria-controls="collapse{{ order.id }}">
+                        <div class="d-flex align-items-center justify-content-between w-100 pe-3 flex-wrap gap-2">
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-light text-dark border p-2 me-3 fs-6">#MD-{{ order.id }}</span>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ order.club.club_name }}</h6>
+                                    <small class="text-muted"><i class="far fa-calendar-alt me-1"></i>{{ order.order_date.strftime('%H:%M - %d/%m/%Y') }}</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <h5 class="text-primary mb-0 fw-bold">{{ "{:,.0f}".format(order.total_price) }} ₫</h5>
+                                {% if order.status == 'pending' %}
+                                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill"><i class="fas fa-hourglass-half me-1"></i>Chờ xác nhận</span>
+                                {% elif order.status == 'confirmed' %}
+                                <span class="badge bg-info text-dark px-3 py-2 rounded-pill"><i class="fas fa-check-circle me-1"></i>Đã chốt</span>
+                                {% elif order.status == 'shipped' %}
+                                <span class="badge bg-primary px-3 py-2 rounded-pill"><i class="fas fa-truck me-1"></i>Đang giao</span>
+                                {% elif order.status == 'delivered' %}
+                                <span class="badge bg-success px-3 py-2 rounded-pill"><i class="fas fa-box-open me-1"></i>Hoàn thành</span>
+                                {% elif order.status == 'cancelled' %}
+                                <span class="badge bg-danger px-3 py-2 rounded-pill"><i class="fas fa-times-circle me-1"></i>Đã hủy</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </button>
+                </h2>
+                <div id="collapse{{ order.id }}" class="accordion-collapse collapse {% if loop.index == 1 %}show{% endif %}" aria-labelledby="heading{{ order.id }}" data-bs-parent="#ordersAccordion">
+                    <div class="accordion-body bg-light rounded-bottom px-4 pb-4 pt-3">
+                        <h6 class="fw-bold mb-3 border-bottom pb-2">Danh Sách Sản Phẩm Mua</h6>
+                        <ul class="list-group list-group-flush mb-4 bg-transparent">
+                            {% for item in order.order_items %}
+                            <li class="list-group-item bg-transparent px-0 border-light d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    {% if item.product.image_url %}
+                                    <img src="{{ item.product.image_url }}" alt="{{ item.product.product_name }}" class="rounded me-3 border bg-white" style="width: 48px; height: 48px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="bg-white rounded d-flex align-items-center justify-content-center me-3 border text-muted" style="width: 48px; height: 48px;">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-1 fw-bold">{{ item.product.product_name }}</h6>
+                                        <span class="text-muted small">Đơn giá: {{ "{:,.0f}".format(item.price_per_unit) }} ₫ x <strong class="text-dark">{{ item.quantity }}</strong></span>
+                                    </div>
+                                </div>
+                                <span class="fw-bold text-dark">{{ "{:,.0f}".format(item.price_per_unit * item.quantity) }} ₫</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        
+                        <div class="row mt-3 border-top pt-3 border-light">
+                            <div class="col-md-7">
+                                <h6 class="text-muted small mb-1 fw-bold"><i class="fas fa-truck me-1"></i>THÔNG TIN NHẬN HÀNG:</h6>
+                                <p class="mb-1 text-dark small"><i class="fas fa-user me-2 opacity-50"></i>{{ order.shipping_name or order.student.full_name }} ({{ order.shipping_major or order.student.major }})</p>
+                                <p class="mb-1 text-dark small"><i class="fas fa-phone-alt me-2 opacity-50"></i>{{ order.shipping_phone or order.student.phone }}</p>
+                                <p class="mb-1 text-dark small"><i class="fas fa-map-marker-alt me-2 opacity-50"></i>{{ order.shipping_address or order.student.address }}</p>
+                                <p class="mb-1 text-dark small"><i class="fas fa-credit-card me-2 opacity-50"></i>Thanh toán: <strong>{{ order.payment_method or 'Tiền mặt' }}</strong></p>
+                                <div class="mt-2">
+                                    <h6 class="text-muted small mb-1 fw-bold"><i class="fas fa-comment-dots me-1"></i>GHI CHÚ:</h6>
+                                    <p class="mb-0 fst-italic text-dark small">{{ order.notes if order.notes else 'Không có ghi chú' }}</p>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <h6 class="text-muted mb-1">TỔNG CỘNG</h6>
+                                <h4 class="text-primary fw-bold mb-0">{{ "{:,.0f}".format(order.total_price) }} ₫</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card shadow-sm border-0 rounded-4 p-5 text-center">
+            <div class="card-body py-5">
+                <i class="fas fa-receipt fa-4x text-muted mb-3 opacity-25"></i>
+                <h5 class="text-muted mb-3">Bạn chưa có đơn đặt mua hàng nào.</h5>
+                <p>Khám phá các sản phẩm quỹ để ủng hộ CLB yêu thích nhé!</p>
+                <a href="{{ url_for('products_list') }}" class="btn btn-primary btn-lg mt-3 fw-bold"><i class="fas fa-search me-2"></i>Xem Cửa Hàng CLB</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

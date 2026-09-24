@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+
+{% block title %}Chi Tiết Sự Kiện - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Chi Tiết Sự Kiện{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div style="width: 100%; height: 160px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px;">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                    <h2 style="color: #333; font-weight: 600; margin-bottom: 0;">{{ event.event_name }}</h2>
+                    {% if event.is_ended %}
+                        <span class="badge bg-danger rounded-pill px-3 py-1 shadow-sm" style="font-size: 12px; letter-spacing: 0.5px;">
+                            ĐÃ KẾT THÚC
+                        </span>
+                    {% endif %}
+                </div>
+                <div style="color: #999; font-size: 14px; margin-bottom: 15px;">
+                    <i class="fas fa-building me-2"></i>
+                    <span>{{ event.club.club_name }}</span>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee;">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <div style="color: #999; font-size: 12px; margin-bottom: 5px;">
+                                <i class="fas fa-calendar me-2"></i>Ngày Tổ Chức
+                            </div>
+                            <p style="color: #333; font-weight: 600; margin: 0;">
+                                {% if event.start_date %}
+                                    {{ event.start_date.strftime('%d/%m/%Y') }}
+                                {% else %}
+                                    Chưa cập nhật
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <div style="color: #999; font-size: 12px; margin-bottom: 5px;">
+                                <i class="fas fa-map-marker-alt me-2"></i>Địa Điểm
+                            </div>
+                            <p style="color: #333; font-weight: 600; margin: 0;">{{ event.location or 'Chưa cập nhật' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div style="color: #999; font-size: 12px; margin-bottom: 5px;">
+                                <i class="fas fa-users me-2"></i>Dự Kiến
+                            </div>
+                            <p style="color: #333; font-weight: 600; margin: 0;">{{ event.max_participants or 0 }} người</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div style="color: #999; font-size: 12px; margin-bottom: 5px;">
+                                <i class="fas fa-check-circle me-2"></i>Đã Đăng Ký
+                            </div>
+                            <p style="color: #333; font-weight: 600; margin: 0;">{{ registered_count }} người</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 style="color: #333; font-weight: 600; margin-bottom: 15px;">Mô Tả Sự Kiện</h4>
+                <p style="color: #666; line-height: 1.6;">
+                    {{ event.description or 'Chưa có mô tả' }}
+                </p>
+
+                <!-- Check-in/Check-out Section for Students -->
+                {% if current_user.is_authenticated and current_user.is_student() and registration %}
+                    <div class="mt-4 p-3 rounded-4 border-0 shadow-sm" style="background: #fdfdfd; border: 1px solid #edf2f7 !important;">
+                        <h6 class="fw-bold text-dark mb-3"><i class="fas fa-clock text-primary me-2"></i>Trạng thái tham gia</h6>
+                        
+                        {% if registration.status == 'pending' %}
+                            <div class="alert alert-warning border-0 rounded-3 small mb-0">
+                                <i class="fas fa-hourglass-half me-2"></i>Đăng ký của bạn đang chờ Ban tổ chức phê duyệt. Vui lòng quay lại sau.
+                            </div>
+                        {% elif registration.status == 'approved' %}
+                            {% if event.is_ended and not registration.check_in_at %}
+                                <div class="alert alert-secondary border-0 rounded-3 small mb-0">
+                                    <i class="fas fa-calendar-times me-2"></i>Sự kiện đã kết thúc và bạn chưa tham gia. Rất tiếc, bạn không thể điểm danh được nữa.
+                                </div>
+                            {% elif not registration.check_in_at %}
+                                <div class="alert alert-info border-0 rounded-3 small mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>Vui lòng quét mã QR từ Ban tổ chức để điểm danh.
+                                </div>
+                                <button type="button" class="btn btn-primary w-100 fw-bold py-2 rounded-pill shadow-sm mb-2" onclick="startScanner('check-in')">
+                                    <i class="fas fa-qrcode me-2"></i>Quét mã Check-in
+                                </button>
+                                <!-- Manual Fallback -->
+                                <p class="text-center mb-0 mt-2">
+                                    <a href="javascript:void(0)" class="small text-muted text-decoration-none" onclick="toggleManualInput()">Hoặc nhập mã tay</a>
+                                </p>
+                                <div id="manualInputContainer" class="d-none mt-2">
+                                    <form action="{{ url_for('event_check_in', event_id=event.id) }}" method="POST" class="d-flex gap-2">
+                                        <input type="text" name="check_in_code" class="form-control form-control-sm border-0 bg-light text-center fw-bold" placeholder="MÃ 6 KÝ TỰ" required maxlength="6">
+                                        <button type="submit" class="btn btn-outline-primary btn-sm px-3 fw-bold">OK</button>
+                                    </form>
+                                </div>
+                            {% elif not registration.check_out_at %}
+                                <div class="d-flex align-items-center justify-content-between bg-success bg-opacity-10 p-3 rounded-3 mb-3 border border-success border-opacity-25">
+                                    <div>
+                                        <p class="mb-0 text-success fw-bold small">Đã điểm danh lúc:</p>
+                                        <p class="mb-0 text-dark small fw-bold">{{ registration.check_in_at.strftime('%H:%M %d/%m/%Y') }}</p>
+                                    </div>
+                                    <i class="fas fa-check-circle text-success fs-4"></i>
+                                </div>
+                                
+                                {% if event.is_ended %}
+                                    <div class="alert alert-warning border-0 rounded-3 small mb-0">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>Sự kiện đã kết thúc. Vui lòng liên hệ Ban tổ chức nếu bạn quên Check-out.
+                                    </div>
+                                {% else %}
+                                    <button type="button" class="btn btn-warning w-100 fw-bold py-2 shadow-sm rounded-pill mb-2" onclick="startScanner('check-out')">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Quét mã Check-out
+                                    </button>
+                                    <p class="text-center mb-0 mt-2">
+                                        <a href="javascript:void(0)" class="small text-muted text-decoration-none" onclick="toggleManualInput()">Hoặc nhập mã tay</a>
+                                    </p>
+                                    <div id="manualInputContainer" class="d-none mt-2">
+                                        <form action="{{ url_for('event_check_out', event_id=event.id) }}" method="POST" class="d-flex gap-2">
+                                            <input type="text" name="check_in_code" class="form-control form-control-sm border-0 bg-light text-center fw-bold" placeholder="MÃ 6 KÝ TỰ" required maxlength="6">
+                                            <button type="submit" class="btn btn-outline-warning btn-sm px-3 fw-bold">OK</button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        {% elif registration.status == 'attended' %}
+                            <div class="bg-primary bg-opacity-10 p-3 rounded-3 border border-primary border-opacity-25 text-center">
+                                <div class="mb-2">
+                                    <i class="fas fa-award text-primary fs-3"></i>
+                                </div>
+                                <h6 class="fw-bold text-primary mb-1">Hoàn thành sự kiện!</h6>
+                                <p class="small text-muted mb-0">Bạn đã nhận được <strong>+{{ registration.achievement_points or event.achievement_points }} điểm Đoàn</strong></p>
+                                <div class="mt-2 text-dark small opacity-75">
+                                    <i class="fas fa-history me-1"></i> {{ registration.check_out_at.strftime('%H:%M %d/%m/%Y') if registration.check_out_at else 'N/A' }}
+                                </div>
+                            </div>
+                        {% elif registration.status == 'rejected' %}
+                            <div class="alert alert-danger border-0 rounded-3 small mb-0">
+                                <i class="fas fa-times-circle me-2"></i>Đăng ký của bạn đã bị từ chối.
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {% if current_user.is_authenticated and current_user.is_student() and not registration %}
+                    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee;">
+                        {% if event.is_ended %}
+                            <div class="alert alert-secondary border-0 rounded-4 p-3 text-center mb-0">
+                                <i class="fas fa-calendar-times me-2 fs-5"></i>
+                                <span class="fw-bold">Sự kiện đã kết thúc</span>
+                                <p class="small mb-0 mt-1">Cảm ơn bạn đã quan tâm. Hẹn gặp lại bạn ở các sự kiện tiếp theo!</p>
+                            </div>
+                        {% else %}
+                            <button type="button" class="btn btn-primary" style="width: 100%; padding: 12px;" data-bs-toggle="modal" data-bs-target="#eventRegModal">
+                                <i class="fas fa-pen me-2"></i>Đăng Ký Tham Gia Sự Kiện
+                            </button>
+                        {% endif %}
+                    </div>
+
+                <!-- Registration Modal -->
+                <div class="modal fade" id="eventRegModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                                <h5 class="modal-title fw-bold text-dark">Đăng Ký Tham Gia Sự Kiện</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="{{ url_for('register_event', event_id=event.id) }}">
+                                <div class="modal-body p-4">
+                                    <div class="alert alert-warning border-0 rounded-4 mb-4" style="background: #fff8e1; color: #f57f17;">
+                                        <div class="d-flex small">
+                                            <i class="fas fa-info-circle me-3 mt-1"></i>
+                                            <span>Xác nhận thông tin cá nhân để Ban tổ chức ghi nhận sự hiện diện của bạn.</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Personal Info -->
+                                    <div class="mb-4">
+                                        <label class="form-label text-muted small fw-bold text-uppercase">Hồ sơ cá nhân</label>
+                                        <div class="p-3 bg-light rounded-4 border">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span class="text-muted small">Họ và tên:</span>
+                                                <span class="fw-bold small">{{ current_user.student_profile.full_name }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span class="text-muted small">Mã số SV:</span>
+                                                <span class="fw-bold small">{{ current_user.student_profile.student_code }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span class="text-muted small">Email:</span>
+                                                <span class="fw-bold small text-lowercase" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ current_user.email }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Event Notes -->
+                                    <div class="mb-0">
+                                        <label class="form-label text-muted small fw-bold text-uppercase">Ghi chú (Nếu có)</label>
+                                        <textarea name="notes" class="form-control border-0 bg-light rounded-4 p-3 shadow-none" 
+                                                  placeholder="Ví dụ: Bạn đăng ký kèm theo yêu cầu gì cho BTC không?" 
+                                                  rows="3" style="resize: none;"></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-0 p-4 pt-0">
+                                    <button type="button" class="btn px-4 fw-bold text-muted" data-bs-dismiss="modal">Hủy</button>
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">Xác Nhận Đăng Ký</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% elif not current_user.is_authenticated %}
+                <div style="margin-top: 25px; padding: 20px; background: #e3f2fd; border-radius: 8px; text-align: center;">
+                    <p style="color: #1976d2; margin: 0;">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <a href="{{ url_for('login') }}">Đăng nhập</a> để đăng ký tham gia sự kiện
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body p-3">
+                <h5 style="color: #333; font-weight: 600; margin-bottom: 10px;">
+                    <i class="fas fa-building me-2"></i>CLB Tổ Chức
+                </h5>
+                <div style="text-align: center;">
+                    <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h6 style="color: #333; font-weight: 600;">{{ event.club.club_name }}</h6>
+                    <p style="color: #999; font-size: 12px; margin-bottom: 10px;">{{ event.club.field }}</p>
+                    <p style="color: #666; font-size: 12px; line-height: 1.5;">
+                        <i class="fas fa-user me-2"></i>
+                        <span>{{ event.club.president_name }}</span>
+                    </p>
+                    <a href="{{ url_for('club_detail', club_id=event.club_id) }}" class="btn btn-outline-primary btn-sm mt-3">
+                        <i class="fas fa-info-circle me-2"></i>Xem Thông Tin CLB
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Club Admin/Manager Tools -->
+        {% if current_user.is_authenticated and current_user.is_club() and event.club_id == current_user.club_profile.id %}
+        <div class="card mt-3 border-0 shadow-sm overflow-hidden">
+            <div class="card-header bg-dark text-white border-0 py-3">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-tools me-2 text-warning"></i>Công cụ quản lý</h6>
+            </div>
+            <div class="card-body p-3 text-center">
+                <div class="row g-2 mb-2 align-items-stretch">
+                    <div class="col-6">
+                        <button type="button" class="btn btn-primary w-100 h-100 rounded-3 fw-bold py-2 d-flex flex-column align-items-center justify-content-center" style="font-size: 11px;" data-bs-toggle="modal" data-bs-target="#qrPresenterModal" onclick="startPresenter('check-in')">
+                            <i class="fas fa-sign-in-alt mb-1 fs-6"></i>QR CHECK-IN
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button type="button" class="btn btn-warning w-100 h-100 rounded-3 fw-bold py-2 d-flex flex-column align-items-center justify-content-center" style="font-size: 11px;" data-bs-toggle="modal" data-bs-target="#qrPresenterModal" onclick="startPresenter('check-out')">
+                            <i class="fas fa-sign-out-alt mb-1 fs-6"></i>QR CHECK-OUT
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-1">
+                    <p class="small text-muted mb-0" style="font-size: 10px;">Mã cố định: <span class="fw-bold text-dark">{{ event.check_in_code }}</span></p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal Trình chiếu QR (BTC) -->
+<div class="modal fade" id="qrPresenterModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4 border-0 rounded-4 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold mx-auto" id="presenterTitle">MÃ QR ĐIỂM DANH</h5>
+                <button type="button" class="btn-close ms-0" data-bs-dismiss="modal" onclick="stopPresenter()"></button>
+            </div>
+            <div class="modal-body">
+                <div id="dynamicQrCode" class="d-flex justify-content-center p-3 bg-white rounded-4 shadow-sm mb-3"></div>
+                <div class="progress mb-2" style="height: 4px;">
+                    <div id="qrTimerBar" class="progress-bar bg-primary" style="width: 100%;"></div>
+                </div>
+                <p class="text-muted small">Mã sẽ tự động thay đổi sau <span id="countdown">15</span> giây.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Quét mã QR (Sinh viên) -->
+<div class="modal fade" id="qrScannerModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="fas fa-camera me-2"></i>Quét mã điểm danh</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="stopScanner()"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="reader" style="width: 100%; min-height: 300px; background: #000;"></div>
+                <div id="scannerFeedback" class="p-3 text-center d-none">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 mb-0">Đang xử lý dữ liệu...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script>
+// --- Common Styles/Helpers ---
+function toggleManualInput() {
+    document.getElementById('manualInputContainer').classList.toggle('d-none');
+}
+
+// --- BTC Presenter Logic ---
+let currentPresenterAction = 'check-in';
+
+async function fetchNewToken() {
+    try {
+        const url = "{{ url_for('get_cico_token', event_id=event.id, action='PLACEHOLDER') }}".replace('PLACEHOLDER', currentPresenterAction);
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.token) {
+            const qrTarget = document.getElementById('dynamicQrCode');
+            qrTarget.innerHTML = '';
+            qrCodeObj = new QRCode(qrTarget, {
+                text: data.token,
+                width: 250,
+                height: 250,
+                colorDark: "#2d3748",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+            resetCountdown();
+        }
+    } catch (e) { console.error("Token fetch failed", e); }
+}
+
+function resetCountdown() {
+    let timeLeft = 15;
+    const bar = document.getElementById('qrTimerBar');
+    const text = document.getElementById('countdown');
+    
+    clearInterval(countdownInterval);
+    countdownInterval = setInterval(() => {
+        timeLeft -= 1;
+        text.innerText = timeLeft;
+        bar.style.width = (timeLeft / 15 * 100) + '%';
+        if (timeLeft <= 0) clearInterval(countdownInterval);
+    }, 1000);
+}
+
+function startPresenter(action) {
+    currentPresenterAction = action;
+    const title = document.getElementById('presenterTitle');
+    title.innerText = action === 'check-in' ? 'MÃ QR CHECK-IN' : 'MÃ QR CHECK-OUT';
+    title.className = 'modal-title fw-bold mx-auto ' + (action === 'check-in' ? 'text-primary' : 'text-warning');
+    
+    fetchNewToken();
+    presenterInterval = setInterval(fetchNewToken, 15000);
+}
+
+function stopPresenter() {
+    clearInterval(presenterInterval);
+    clearInterval(countdownInterval);
+}
+
+// --- Student Scanner Logic ---
+let html5QrcodeScanner = null;
+let currentAction = null;
+
+function startScanner(action) {
+    currentAction = action;
+    const modal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
+    modal.show();
+    
+    html5QrcodeScanner = new Html5Qrcode("reader");
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+    
+    html5QrcodeScanner.start(
+        { facingMode: "environment" }, 
+        config,
+        onScanSuccess
+    ).catch(err => {
+        alert("Không thể mở camera: " + err);
+        modal.hide();
+    });
+}
+
+function stopScanner() {
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.stop().then(() => {
+            html5QrcodeScanner = null;
+        }).catch(err => console.error(err));
+    }
+}
+
+async function onScanSuccess(decodedText) {
+    // Vibrate to confirm
+    if (navigator.vibrate) navigator.vibrate(100);
+    
+    // Stop scanner and show loading
+    stopScanner();
+    document.getElementById('reader').classList.add('d-none');
+    document.getElementById('scannerFeedback').classList.remove('d-none');
+    
+    try {
+        const response = await fetch("{{ url_for('verify_cico_token', event_id=event.id, action='ACTION_PLACEHOLDER') }}".replace('ACTION_PLACEHOLDER', currentAction), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: decodedText })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert("Lỗi: " + data.error);
+            // Restart scanner on error if user doesn't close modal
+            document.getElementById('reader').classList.remove('d-none');
+            document.getElementById('scannerFeedback').classList.add('d-none');
+            startScanner(currentAction); 
+        }
+    } catch (e) {
+        alert("Lỗi kết nối máy chủ");
+        location.reload();
+    }
+}
+</script>
+{% endblock %}

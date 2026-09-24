@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Đăng Bài Viết Mới - Hệ thống CLB{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header Banner -->
+    <div class="card border-0 rounded-4 overflow-hidden mb-4 shadow-sm" 
+         style="background: linear-gradient(135deg, #BFDBFE 0%, #DBEAFE 100%);">
+        <div class="card-body p-5 text-center">
+            <h2 class="fw-bold text-primary mb-2">Đăng bài viết câu lạc bộ</h2>
+            <p class="text-primary opacity-75 mb-0">Chia sẻ kiến thức và kinh nghiệm với cộng đồng</p>
+        </div>
+    </div>
+
+    <form action="{{ url_for('create_post') }}" method="POST" enctype="multipart/form-data" id="postForm">
+        <div class="row g-4">
+            <!-- Left Column: Main Content -->
+            <div class="col-lg-8">
+                <div class="card border-0 rounded-4 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4">Nội dung bài viết</h5>
+                        
+                        <!-- Toolbar -->
+                        <div class="d-flex flex-wrap gap-2 mb-3 p-2 bg-light rounded-3 border toolbar">
+                            <button type="button" class="btn btn-sm btn-white border shadow-sm px-3" onclick="formatDoc('bold')" title="Bôi đậm"><i class="fas fa-bold"></i></button>
+                            <button type="button" class="btn btn-sm btn-white border shadow-sm px-3" onclick="formatDoc('italic')" title="In nghiêng"><i class="fas fa-italic"></i></button>
+                            <button type="button" class="btn btn-sm btn-white border shadow-sm px-3" onclick="formatDoc('underline')" title="Gạch chân"><i class="fas fa-underline"></i></button>
+                            <div class="vr mx-1"></div>
+                            <button type="button" class="btn btn-sm btn-white border shadow-sm px-3" onclick="formatDoc('justifyLeft')" title="Căn trái"><i class="fas fa-align-left"></i></button>
+                            <button type="button" class="btn btn-sm btn-white border shadow-sm px-3" onclick="formatDoc('justifyCenter')" title="Căn giữa"><i class="fas fa-align-center"></i></button>
+                            <button type="button" class="btn btn-sm btn-white border shadow-sm px-3" onclick="formatDoc('justifyRight')" title="Căn phải"><i class="fas fa-align-right"></i></button>
+                            <div class="vr mx-1"></div>
+                            <button type="button" class="btn btn-sm btn-white border shadow-sm px-3" onclick="addLink()" title="Chèn liên kết"><i class="fas fa-link"></i></button>
+                            <button type="button" class="btn btn-sm btn-white border shadow-sm px-3" onclick="formatDoc('formatBlock', 'blockquote')" title="Trích dẫn"><i class="fas fa-quote-right"></i></button>
+                            <button type="button" class="btn btn-sm btn-white border shadow-sm px-3" onclick="formatDoc('insertUnorderedList')" title="Danh sách"><i class="fas fa-list-ul"></i></button>
+                        </div>
+
+                        <div class="mb-4">
+                            <input type="text" name="title" class="form-control form-control-lg border-0 bg-light p-3 rounded-3 shadow-none" 
+                                   placeholder="Tiêu đề bài viết..." required style="font-size: 1.25rem; font-weight: 600;">
+                        </div>
+
+                        <!-- Editor Content -->
+                        <div class="mb-4">
+                            <div id="editor" contenteditable="true" class="form-control border-0 bg-light p-3 rounded-3 shadow-none" 
+                                 style="min-height: 400px; height: auto; overflow-y: auto; line-height: 1.6; font-size: 1rem;"></div>
+                            <input type="hidden" name="content" id="hiddenContent">
+                        </div>
+
+                        <div class="mb-0">
+                            <h6 class="fw-bold mb-3">Hình ảnh minh họa</h6>
+                            <div class="bg-light rounded-4 border-2 border-dashed p-4 text-center position-relative mb-3">
+                                <div class="py-2">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                    <h6 class="text-dark fw-bold">Tải tệp lên từ máy tính</h6>
+                                    <p class="text-muted small mb-3">Kéo thả hoặc nhấn để chọn tệp (JPG, PNG, GIF)</p>
+                                    <input type="file" name="image_file" class="form-control mb-3" accept="image/*" id="imageInput">
+                                    <hr class="my-3">
+                                    <p class="text-muted small">Hoặc nhập URL hình ảnh trực tuyến</p>
+                                    <input type="url" name="image_url" class="form-control text-center bg-white border-0 shadow-sm rounded-pill mx-auto" 
+                                           style="max-width: 400px;" placeholder="https://example.com/image.jpg">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Sidebar -->
+            <div class="col-lg-4">
+                <!-- Publish Box -->
+                <div class="card border-0 rounded-4 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-4">Xuất bản</h6>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary py-2 rounded-3 fw-bold">
+                                <i class="fas fa-paper-plane me-2"></i>Đăng bài
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visibility Box -->
+                <div class="card border-0 rounded-4 shadow-sm">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-4">Hiển thị</h6>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="form-check custom-radio p-3 border rounded-3 position-relative">
+                                <input class="form-check-input ms-0 me-3 mt-1" type="radio" name="visibility" value="public" id="visPublic" checked>
+                                <label class="form-check-label w-100" for="visPublic">
+                                    <div class="fw-bold d-block">Công khai</div>
+                                    <span class="text-muted small">Mọi người đều có thể xem</span>
+                                </label>
+                            </div>
+                            <div class="form-check custom-radio p-3 border rounded-3 position-relative">
+                                <input class="form-check-input ms-0 me-3 mt-1" type="radio" name="visibility" value="members" id="visMembers">
+                                <label class="form-check-label w-100" for="visMembers">
+                                    <div class="fw-bold d-block">Chỉ thành viên</div>
+                                    <span class="text-muted small">Chỉ thành viên CLB xem được</span>
+                                </label>
+                            </div>
+                            <div class="form-check custom-radio p-3 border rounded-3 position-relative">
+                                <input class="form-check-input ms-0 me-3 mt-1" type="radio" name="visibility" value="private" id="visPrivate">
+                                <label class="form-check-label w-100" for="visPrivate">
+                                    <div class="fw-bold d-block">Riêng tư</div>
+                                    <span class="text-muted small">Chỉ mình bạn xem được</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/club/create_post.css') }}">
+
+<script>
+    function formatDoc(cmd, value = null) {
+        if (value) {
+            document.execCommand(cmd, false, value);
+        } else {
+            document.execCommand(cmd, false, null);
+        }
+    }
+
+    function addLink() {
+        const url = prompt('Nhập địa chỉ liên kết (URL):', 'https://');
+        if (url && url !== '' && url !== 'https://') {
+            formatDoc('createLink', url);
+        }
+    }
+
+    // Sync editor content to hidden input before submit
+    document.getElementById('postForm').addEventListener('submit', function(e) {
+        const editor = document.getElementById('editor');
+        const hiddenInput = document.getElementById('hiddenContent');
+        
+        // Basic validation
+        if (editor.innerText.trim() === '' && !editor.querySelector('img')) {
+            alert('Vui lòng nhập nội dung bài viết!');
+            e.preventDefault();
+            return;
+        }
+        
+        hiddenInput.value = editor.innerHTML;
+    });
+
+    // Handle button active states
+    document.getElementById('editor').addEventListener('keyup', updateToolbar);
+    document.getElementById('editor').addEventListener('mouseup', updateToolbar);
+
+    function updateToolbar() {
+        // This is a simplified version - in a real editor you'd check queryCommandState for each button
+    }
+</script>
+{% endblock %}

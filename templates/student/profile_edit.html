@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Chỉnh Sửa Thông Tin Cá Nhân - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Chỉnh Sửa Thông Tin{% endblock %}
+
+{% block content %}
+<h2 class="page-title mb-4">
+    <i class="fas fa-edit me-2"></i>Chỉnh Sửa Thông Tin Cá Nhân
+</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label" style="color: #333; font-weight: 600;">Họ và Tên</label>
+                            <input type="text" name="full_name" class="form-control" value="{{ student.full_name or '' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" style="color: #333; font-weight: 600;">Mã Sinh Viên</label>
+                            <input type="text" name="student_code" class="form-control" value="{{ student.student_code or '' }}" disabled>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label" style="color: #333; font-weight: 600;">Email</label>
+                            <input type="email" class="form-control" value="{{ current_user.email }}" disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" style="color: #333; font-weight: 600;">Số Điện Thoại</label>
+                            <input type="text" name="phone" class="form-control" value="{{ student.phone or '' }}" placeholder="Nhập số điện thoại">
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label" style="color: #333; font-weight: 600;">Khóa Học</label>
+                            <input type="text" name="university_year" class="form-control" value="{{ student.university_year or '' }}" placeholder="VD: K2024">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" style="color: #333; font-weight: 600;">Ngành Học</label>
+                            <input type="text" name="major" class="form-control" value="{{ student.major or '' }}" placeholder="Nhập ngành học">
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <label class="form-label" style="color: #333; font-weight: 600;">Địa Chỉ</label>
+                            <input type="text" name="address" class="form-control" value="{{ student.address or '' }}" placeholder="Nhập địa chỉ">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <label class="form-label" style="color: #333; font-weight: 600;">Link Ảnh Đại Diện (Avatar URL)</label>
+                            <input type="url" name="avatar_url" class="form-control" value="{{ student.avatar_url or '' }}" placeholder="Dán link ảnh tại đây (VD: https://imgur.com/...)">
+                            <small class="text-muted">Định dạng khuyên dùng: vuông tỉ lệ 1:1.</small>
+                        </div>
+                    </div>
+
+                    <div style="padding-top: 20px; border-top: 1px solid #eee;">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-save me-2"></i>Lưu Thay Đổi
+                        </button>
+                        <a href="{{ url_for('student_profile') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Hủy
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student/profile_edit.css') }}">
+{% endblock %}

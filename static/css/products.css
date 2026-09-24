@@ -1,0 +1,11 @@
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-clamp: 2;
+}
+.transition-transform { transition: transform 0.5s ease; }
+.shadow-hover:hover .transition-transform { transform: scale(1.08); }
+.hvr-grow { transition: 0.3s; }
+.hvr-grow:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3) !important; }

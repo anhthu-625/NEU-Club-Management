@@ -1,0 +1,79 @@
+    body {
+        background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 40px 0;
+    }
+    .register-container {
+        max-width: 650px;
+        width: 100%;
+        margin: auto;
+        padding: 0 20px;
+    }
+    .register-card {
+        background: white;
+        border-radius: 32px;
+        padding: 3rem;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.02);
+    }
+    .register-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    .register-icon {
+        width: 56px;
+        height: 56px;
+        background: var(--primary-soft);
+        color: var(--primary);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin: 0 auto 1.25rem;
+    }
+    .section-title {
+        font-size: 0.9rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .section-title::after {
+        content: "";
+        flex-grow: 1;
+        height: 1px;
+        background: var(--primary-soft);
+    }
+    .form-label {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: var(--secondary);
+        margin-bottom: 0.5rem;
+    }
+    .form-control {
+        padding: 0.7rem 1rem;
+        border-radius: 12px;
+        background: #F8FAFC;
+        border: 1.5px solid transparent;
+        transition: var(--transition);
+        font-size: 0.9rem;
+    }
+    .form-control:focus {
+        background: white;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-soft);
+    }
+    .btn-register {
+        padding: 0.8rem;
+        border-radius: 12px;
+        font-weight: 700;
+        margin-top: 1.5rem;
+        box-shadow: 0 10px 20px var(--primary-soft);
+    }

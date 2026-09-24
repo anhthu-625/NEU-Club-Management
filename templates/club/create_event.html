@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Tạo Sự Kiện Mới - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Tạo Sự Kiện Mới{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="page-title mb-0">
+        <i class="fas fa-calendar-plus me-2"></i>Tạo Sự Kiện Cho CLB
+    </h2>
+    <a href="{{ url_for('club_events') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-times me-2"></i>Hủy Bỏ
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-5">
+                <form action="{{ url_for('create_event') }}" method="POST">
+                    <div class="mb-4">
+                        <label for="event_name" class="form-label fw-bold">Tên Sự Kiện <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-lg" id="event_name" name="event_name" required placeholder="Ví dụ: Dạ Hội Mùa Xuân 2024">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="description" class="form-label fw-bold">Mô Tả Nhanh</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" placeholder="Nhập tóm tắt về nội dung và mục đích của sự kiện"></textarea>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="start_date" class="form-label fw-bold">Thời gian diễn ra <span class="text-danger">*</span></label>
+                            <input type="datetime-local" class="form-control form-control-lg" id="start_date" name="start_date" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="max_participants" class="form-label fw-bold">Số Lượng Người Tham Gia (Tối đa)</label>
+                            <input type="number" class="form-control form-control-lg" id="max_participants" name="max_participants" min="0" placeholder="0 = Không giới hạn">
+                            <small class="text-muted">Nhập số lượng thành viên dự kiến giới hạn đăng ký.</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="location" class="form-label fw-bold">Địa Điểm <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-lg" id="location" name="location" required placeholder="Ví dụ: Hội trường A, Trường Đại Học KTQD">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="achievement_points" class="form-label fw-bold">Điểm Đoàn thưởng <span class="text-primary">*</span></label>
+                            <input type="number" class="form-control form-control-lg" id="achievement_points" name="achievement_points" min="1" max="100" value="5" required>
+                            <small class="text-muted">Số điểm cộng cho sinh viên sau khi hoàn thành.</small>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg p-3" style="font-weight: 600;">
+                            <i class="fas fa-paper-plane me-2"></i>Tạo Sự Kiện Và Chờ Phê Duyệt
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

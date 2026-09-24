@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Đăng ký Thành lập CLB - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Đăng ký Thành lập Câu lạc bộ{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm p-4">
+            <div class="card-body">
+                <div class="text-center mb-5">
+                    <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex p-4 mb-3">
+                        <i class="fas fa-edit fs-1"></i>
+                    </div>
+                    <h3 class="fw-bold">Khởi tạo Câu lạc bộ của riêng bạn</h3>
+                    <p class="text-muted">Điền đầy đủ thông tin vào mẫu dưới đây. Ban quản trị sẽ sớm xem xét yêu cầu của bạn.</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('student_club_register') }}">
+                    <div class="row g-4">
+                        <!-- Club Name -->
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Tên Câu lạc bộ <span class="text-danger">*</span></label>
+                            <input type="text" name="club_name" class="form-control py-3 px-4" placeholder="Ví dụ: CLB Âm nhạc NEU" required>
+                        </div>
+
+                        <!-- Field -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Lĩnh vực hoạt động <span class="text-danger">*</span></label>
+                            <select name="field" class="form-select py-3 px-4" required>
+                                <option value="" selected disabled>Chọn lĩnh vực</option>
+                                <option value="Học thuật">Học thuật</option>
+                                <option value="Văn nghệ/Nghệ thuật">Văn nghệ/Nghệ thuật</option>
+                                <option value="Thể thao">Thể thao</option>
+                                <option value="Tình nguyện">Tình nguyện</option>
+                                <option value="Kỹ năng/Sở thích">Kỹ năng/Sở thích</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Tên đăng nhập dự kiến <span class="text-danger">*</span></label>
+                            <input type="text" name="intended_username" class="form-control py-3 px-4" placeholder="Ví dụ: bongda_neu" required>
+                            <div class="form-text text-muted small mt-2">Dùng để đăng nhập hệ thống sau này (Ví dụ: yourname@neu.edu.vn)</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email liên hệ (Nếu có)</label>
+                            <input type="email" name="email" class="form-control py-3 px-4" placeholder="clb@neu.edu.vn">
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Số điện thoại liên hệ</label>
+                            <input type="text" name="phone" class="form-control py-3 px-4" placeholder="0123 456 789">
+                        </div>
+
+                        <!-- President -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Người chịu trách nhiệm / Chủ tịch</label>
+                            <input type="text" name="president_name" class="form-control py-3 px-4" value="{{ student.full_name }}" placeholder="Họ và tên">
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Mô tả tóm tắt mục đích & hoạt động <span class="text-danger">*</span></label>
+                            <textarea name="description" class="form-control px-4 py-3" rows="5" placeholder="Mục đích thành lập CLB là gì? Các hoạt động chính dự kiến..." required></textarea>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="col-md-12 text-center mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg px-5 py-3 shadow-sm">
+                                <i class="fas fa-paper-plane me-2"></i> Gửi đơn đăng ký
+                            </button>
+                            <a href="{{ url_for('student_dashboard') }}" class="btn btn-light btn-lg px-5 py-3 ms-3 text-muted">
+                                Hủy bỏ
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info alert -->
+        <div class="alert alert-info border-0 shadow-sm mt-4 p-4 text-center rounded-4">
+            <h6 class="fw-bold mb-2">Quy trình đăng ký:</h6>
+            <p class="small text-muted mb-0">
+                Gửi yêu cầu &rarr; Admin xem xét hồ sơ &rarr; Phỏng vấn/Trao đổi (nếu cần) &rarr; Phê duyệt &rarr; Tạo tài khoản CLB &rarr; Bắt đầu hoạt động!
+            </p>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student/club_register.css') }}">
+{% endblock %}

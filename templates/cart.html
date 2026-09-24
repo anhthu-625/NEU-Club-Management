@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+
+{% block title %}Giỏ Hàng - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Giỏ Hàng{% endblock %}
+
+{% block content %}
+<div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+        <h2 class="page-title mb-1">
+            <i class="fas fa-shopping-cart me-2 text-primary"></i>Giỏ Hàng
+        </h2>
+        <p class="text-muted mb-0">Quản lý các sản phẩm bạn đã chọn để ủng hộ các CLB</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <!-- Shopping List -->
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <h5 class="fw-bold mb-0">Danh Sách Sản Phẩm {{ '(%d)' | format(cart_items|length) if cart_items else '' }}</h5>
+            </div>
+            <div class="card-body p-4">
+                {% if cart_items %}
+                {% set club_ids = [] %}
+                {% for item in cart_items %}
+                    {% if item.product.club_id not in club_ids %}
+                        {% set _ = club_ids.append(item.product.club_id) %}
+                    {% endif %}
+                {% endfor %}
+                
+                <div id="multi-club-warning" class="alert alert-warning border-0 rounded-4 mb-4 d-flex align-items-center" style="display: none !important;">
+                    <i class="fas fa-exclamation-triangle fs-4 me-3 text-warning"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Lưu ý đặt hàng</h6>
+                        <p class="small mb-0">Bạn đang chọn sản phẩm từ <span id="warning-club-count">2</span> CLB khác nhau. Vui lòng bỏ tích các sản phẩm của CLB khác để có thể thanh toán. Điều này giúp tính phí ship chính xác hơn!</p>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle border-bottom mb-0">
+                        <thead class="text-muted small text-uppercase" style="background: #f8fafc;">
+                            <tr>
+                                <th scope="col" class="border-0 px-3 py-3" style="width: 40px;">
+                                    <input type="checkbox" id="select-all" class="form-check-input" checked onchange="toggleSelectAll(this)">
+                                </th>
+                                <th scope="col" class="border-0 px-3 py-3">Sản phẩm</th>
+                                <th scope="col" class="border-0 text-center py-3" style="width: 150px;">Số lượng</th>
+                                <th scope="col" class="border-0 text-end py-3">Thành tiền</th>
+                                <th scope="col" class="border-0 text-end py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                             {% for item in cart_items %}
+                            <tr class="cart-row" data-club-id="{{ item.product.club_id }}" data-price="{{ item.product.price }}" data-qty="{{ item.quantity }}">
+                                <td class="px-3 py-4">
+                                    <input type="checkbox" name="selected_items" value="{{ item.product.id }}" class="form-check-input item-checkbox" checked onchange="updateTotal()" form="checkout-form">
+                                </td>
+                                <td class="px-3 py-4">
+                                    <div class="d-flex align-items-center">
+                                        {% if item.product.image_url %}
+                                        <img src="{{ item.product.image_url }}" alt="{{ item.product.product_name }}" class="rounded-3 me-3 border shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+                                        {% else %}
+                                        <div class="bg-light rounded-3 d-flex align-items-center justify-content-center me-3 border text-muted shadow-sm" style="width: 80px; height: 80px;">
+                                            <i class="fas fa-box-open fs-3 opacity-25"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <a href="{{ url_for('product_detail', product_id=item.product.id) }}" class="text-decoration-none fw-bold text-dark mb-1 d-block hvr-text-primary">{{ item.product.product_name }}</a>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-primary-light text-primary small px-2 py-1"><i class="fas fa-store me-1"></i>{{ item.product.club.club_name }}</span>
+                                                <span class="text-muted small ms-2 ps-2 border-start text-nowrap">{{ "{:,.0f}".format(item.product.price) }} ₫/sp</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        <form action="{{ url_for('update_cart', product_id=item.product.id, action='decrease') }}" method="POST">
+                                            <button type="submit" class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                <i class="fas fa-minus fs-xs"></i>
+                                            </button>
+                                        </form>
+                                        <span class="mx-3 fw-bold fs-5 text-dark" style="min-width: 25px;">{{ item.quantity }}</span>
+                                        <form action="{{ url_for('update_cart', product_id=item.product.id, action='increase') }}" method="POST">
+                                            <button type="submit" class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" {% if item.quantity >= item.product.quantity %}disabled{% endif %}>
+                                                <i class="fas fa-plus fs-xs"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    {% if item.quantity >= item.product.quantity %}
+                                    <div class="text-danger x-small mt-1">Đã đạt tối đa kho</div>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end fw-bold text-primary fs-5 text-nowrap">
+                                    {{ "{:,.0f}".format(item.product.price * item.quantity) }} ₫
+                                </td>
+                                <td class="text-end">
+                                    <form action="{{ url_for('remove_from_cart', product_id=item.product.id) }}" method="POST">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger border-0 rounded-circle p-2 hvr-bg-danger-light" title="Xóa sản phẩm">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-shopping-basket fa-5x text-muted opacity-25"></i>
+                    </div>
+                    <h5 class="text-muted fw-bold">Giỏ hàng của bạn đang trống!</h5>
+                    <p class="text-muted small mx-auto" style="max-width: 300px;">Hãy tiếp tục khám phá các sản phẩm gây quỹ độc đáo từ CLB NEU bạn nhé.</p>
+                    <a href="{{ url_for('products_list') }}" class="btn btn-primary mt-3 px-5 py-3 shadow border-0 rounded-pill"><i class="fas fa-shopping-bag me-2"></i>Tiếp Tục Mua Sắm</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if cart_items %}
+        <!-- Shipping Form -->
+        <div id="shipping-section" class="card shadow-sm border-0 rounded-4 mb-4" style="display: none;">
+            <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-shipping-fast text-primary me-2"></i>Thông Tin Giao Nhận</h5>
+                <p class="text-muted small mt-1">Vui lòng kiểm tra kỹ thông tin để CLB liên hệ giao hàng</p>
+            </div>
+            <div class="card-body p-4">
+                <form id="checkout-form" action="{{ url_for('checkout_cart') }}" method="POST">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label text-dark small fw-bold">HỌ VÀ TÊN NGƯỜI NHẬN *</label>
+                            <input type="text" name="shipping_name" class="form-control border-light bg-light p-3" value="{{ current_user.student_profile.full_name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-dark small fw-bold">LỚP CHUYÊN NGÀNH *</label>
+                            <input type="text" name="shipping_major" class="form-control border-light bg-light p-3" value="{{ current_user.student_profile.major or '' }}" required placeholder="Ví dụ: Marketing 65">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-dark small fw-bold">SỐ ĐIỆN THOẠI *</label>
+                            <input type="tel" name="shipping_phone" class="form-control border-light bg-light p-3" value="{{ current_user.student_profile.phone or '' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-dark small fw-bold">EMAIL LIÊN HỆ *</label>
+                            <input type="email" name="shipping_email" class="form-control border-light bg-light p-3" value="{{ current_user.email }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-dark small fw-bold">ĐỊA CHỈ NHẬN HÀNG (Tòa nhà, số phòng tại NEU hoặc địa chỉ riêng) *</label>
+                            <input type="text" name="shipping_address" class="form-control border-light bg-light p-3" value="{{ current_user.student_profile.address or '' }}" required placeholder="Ghi chú rõ vị trí để CLB tìm thấy bạn nhanh nhất">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-dark small fw-bold">PHƯƠNG THỨC NHẬN HÀNG *</label>
+                            <select name="shipping_method" id="shipping_method" class="form-select border-light bg-light p-3" onchange="updateTotal()">
+                                <option value="at_neu" data-fee="0">Nhận trực tiếp tại NEU (Miễn phí)</option>
+                                <option value="delivery" data-fee="15000">Giao hàng tận nơi (+15.000₫)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-dark small fw-bold">PHƯƠNG THỨC THANH TOÁN</label>
+                            <select name="payment_method" class="form-select border-light bg-light p-3">
+                                <option value="Tiền mặt">Tiền mặt khi nhận hàng (COD)</option>
+                                <option value="Chuyển khoản">Chuyển khoản / Quét mã QR</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-dark small fw-bold">GHI CHÚ GIAO HÀNG</label>
+                            <input type="text" name="notes" class="form-control border-light bg-light p-3" placeholder="Ví dụ: Giao vào giờ nghỉ trưa, sảnh tòa nhà...">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Order Summary -->
+        <div class="card shadow-sm border-0 rounded-4 sticky-top" style="top: 100px;">
+            <div class="card-body p-4">
+                <h5 class="fw-bold border-bottom pb-3 mb-4"><i class="fas fa-file-invoice-dollar text-primary me-2"></i>Tóm Tắt Thanh Toán</h5>
+                
+                <div class="d-flex justify-content-between mb-3 text-muted">
+                    <span>Số lượng sản phẩm:</span>
+                    <span class="fw-bold text-dark" id="selected_count_display">{{ cart_items|length if cart_items else 0 }} sản phẩm</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3 text-muted">
+                    <span>Tạm tính (chưa ship):</span>
+                    <span class="fw-bold text-dark" id="subtotal_display">{{ "{:,.0f}".format(total_price) }} ₫</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3 text-muted">
+                    <span>Phí vận chuyển:</span>
+                    <span class="text-success fw-bold" id="shipping_fee_display">Miễn phí tại NEU</span>
+                </div>
+                
+                <hr class="my-4 border-light">
+                
+                <div class="d-flex justify-content-between mb-4 align-items-center">
+                    <span class="fw-bold text-dark fs-5">TỔNG CỘNG:</span>
+                    <h3 class="fw-bold text-primary mb-0"><span id="total_price_display">{{ "{:,.0f}".format(total_price) }}</span> ₫</h3>
+                </div>
+
+                {% if cart_items %}
+                <div id="summary-actions">
+                    <button type="button" id="proceed-btn" onclick="showShippingForm()" class="btn btn-primary btn-lg w-100 fw-bold py-3 shadow rounded-pill hvr-grow mb-3">
+                        Tiếp Tục Đặt Hàng <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                    <button type="submit" id="confirm-btn" form="checkout-form" class="btn btn-success btn-lg w-100 fw-bold py-3 shadow rounded-pill hvr-grow mb-3" style="display: none;">
+                        Xác Nhận Đặt Hàng <i class="fas fa-check-circle ms-2"></i>
+                    </button>
+                </div>
+                <div class="alert alert-info border-0 rounded-3 small mb-0 py-2">
+                    <i class="fas fa-info-circle me-2"></i>Đơn hàng sẽ được gửi trực tiếp đến CLB để xử lý.
+                </div>
+                {% else %}
+                <button class="btn btn-secondary btn-lg w-100 fw-bold py-3 disabled rounded-pill opacity-50 mb-3">
+                    Giỏ Hàng Trống
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateTotal() {
+    let subtotal = 0;
+    let selectedCount = 0;
+    
+    // Select all checkboxes
+    const checkboxes = document.querySelectorAll('.item-checkbox:checked');
+    checkboxes.forEach(cb => {
+        const row = cb.closest('tr');
+        const price = parseFloat(row.dataset.price);
+        const qty = parseInt(row.dataset.qty);
+        subtotal += price * qty;
+        selectedCount++;
+    });
+
+    const select = document.getElementById('shipping_method');
+    if (!select) return;
+
+    const shippingFee = parseInt(select.options[select.selectedIndex].dataset.fee);
+    
+    // Update labels
+    const feeDisplay = document.getElementById('shipping_fee_display');
+    const totalDisplay = document.getElementById('total_price_display');
+    const countDisplay = document.getElementById('selected_count_display');
+    const subtotalDisplay = document.getElementById('subtotal_display');
+    
+    // Fallback if elements not found (e.g. initial load)
+    if (countDisplay) countDisplay.innerText = selectedCount + ' sản phẩm';
+    if (subtotalDisplay) subtotalDisplay.innerText = subtotal.toLocaleString('vi-VN') + ' ₫';
+    
+    if (shippingFee === 0) {
+        feeDisplay.innerText = 'Miễn phí tại NEU';
+        feeDisplay.className = 'text-success fw-bold';
+    } else {
+        feeDisplay.innerText = shippingFee.toLocaleString('vi-VN') + ' ₫';
+        feeDisplay.className = 'text-danger fw-bold';
+    }
+    
+    const grandTotal = subtotal + shippingFee;
+    if (totalDisplay) totalDisplay.innerText = grandTotal.toLocaleString('vi-VN');
+    
+    // Check for multi-club selection
+    const clubIds = new Set();
+    checkboxes.forEach(cb => {
+        const row = cb.closest('tr');
+        clubIds.add(row.dataset.clubId);
+    });
+    
+    const warningDiv = document.getElementById('multi-club-warning');
+    const warningCount = document.getElementById('warning-club-count');
+    const proceedBtn = document.getElementById('proceed-btn');
+    
+    if (clubIds.size > 1) {
+        if (warningDiv) warningDiv.setAttribute('style', 'display: flex !important');
+        if (warningCount) warningCount.innerText = clubIds.size;
+        if (proceedBtn) proceedBtn.disabled = true;
+    } else {
+        if (warningDiv) warningDiv.setAttribute('style', 'display: none !important');
+        if (proceedBtn) proceedBtn.disabled = false;
+    }
+    
+    // Update "Select All" checkbox state
+    const allCheckboxes = document.querySelectorAll('.item-checkbox');
+    const selectAll = document.getElementById('select-all');
+    if (selectAll) {
+        selectAll.checked = checkboxes.length === allCheckboxes.length && allCheckboxes.length > 0;
+    }
+}
+
+function toggleSelectAll(masterCb) {
+    const checkboxes = document.querySelectorAll('.item-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = masterCb.checked;
+    });
+    updateTotal();
+}
+
+function showShippingForm() {
+    const selectedCheckboxes = document.querySelectorAll('.item-checkbox:checked');
+    
+    if (selectedCheckboxes.length === 0) {
+        alert('Vui lòng chọn ít nhất 1 sản phẩm để thanh toán!');
+        return;
+    }
+    
+    // Check if multiple clubs are selected
+    const clubIds = new Set();
+    selectedCheckboxes.forEach(cb => {
+        const row = cb.closest('tr');
+        clubIds.add(row.dataset.clubId);
+    });
+    
+    if (clubIds.size > 1) {
+        alert('Bạn chỉ có thể thanh toán sản phẩm từ 1 CLB trong mỗi lần đặt hàng. Vui lòng bỏ chọn các món từ CLB khác!');
+        return;
+    }
+
+    const shippingSection = document.getElementById('shipping-section');
+    const proceedBtn = document.getElementById('proceed-btn');
+    const confirmBtn = document.getElementById('confirm-btn');
+    
+    // Show the shipping section with a smooth scroll
+    shippingSection.style.display = 'block';
+    shippingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    // Toggle buttons
+    proceedBtn.style.display = 'none';
+    confirmBtn.style.display = 'block';
+}
+
+// Ensure totals are calculated on load
+document.addEventListener('DOMContentLoaded', updateTotal);
+</script>
+{% endblock %}

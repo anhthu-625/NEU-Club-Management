@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Câu Lạc Bộ - Hệ thống CLB{% endblock %}
+
+{% block page_title %}Câu Lạc Bộ{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="page-title mb-1"><i class="fas fa-users-viewfinder me-2 text-primary"></i>Khám Phá Cộng Đồng</h2>
+        <p class="text-muted mb-0">Tìm kiếm và gia nhập các câu lạc bộ phù hợp với đam mê của bạn tại NEU</p>
+    </div>
+</div>
+
+<!-- Search & Filter Bar (Compact) -->
+<div class="card border-0 mb-3 shadow-sm overflow-hidden" style="border-radius: 12px !important;">
+    <div class="card-body p-2">
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="input-group border-0 shadow-none">
+                    <span class="input-group-text bg-transparent border-0 px-3"><i class="fas fa-search text-muted small"></i></span>
+                    <input type="text" class="form-control border-0 bg-transparent py-2" placeholder="Tìm tên câu lạc bộ hoặc lĩnh vực..." id="searchInput">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Club Cards Grid -->
+{% if clubs %}
+<div class="row g-4" id="clubGrid">
+    {% for club in clubs %}
+    <div class="col-md-6 col-xl-4 club-item">
+        <div class="card h-100 border-0 overflow-hidden group shadow-sm">
+            <!-- Compact Card Header -->
+            <div class="position-relative" style="height: 90px; background: linear-gradient(135deg, #3B82F6, #1E3A8A);">
+                <div class="position-absolute bottom-0 start-0 p-3 translate-middle-y mt-4 ms-2">
+                    {% if club.logo_url %}
+                    <img src="{{ club.logo_url }}" class="rounded-3 border border-2 border-white shadow-sm bg-white" style="width: 54px; height: 54px; object-fit: cover;">
+                    {% else %}
+                    <div class="rounded-3 border border-2 border-white shadow-sm bg-primary text-white d-flex align-items-center justify-content-center" style="width: 54px; height: 54px; font-weight: 800; font-size: 22px;">
+                        {{ club.club_name[0].upper() }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="position-absolute top-0 end-0 p-2">
+                    <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-2 py-1 small backdrop-blur-sm shadow-sm" style="font-size: 10px;">{{ club.field }}</span>
+                </div>
+            </div>
+
+            <div class="card-body pt-4 px-3 pb-3">
+                <div class="mb-2">
+                    <h6 class="fw-bold mb-0 text-truncate">
+                        <a href="{{ url_for('club_detail', club_id=club.id) }}" class="text-dark text-decoration-none hover-primary">{{ club.club_name }}</a>
+                    </h6>
+                    <p class="text-muted mb-0" style="font-size: 11px;"><i class="fas fa-user-tie me-1"></i>{{ club.president_name }}</p>
+                </div>
+                
+                <p class="text-secondary mb-3 line-clamp-2" style="font-size: 12px; min-height: 2.4rem;">
+                    {{ club.description if club.description else 'Hành trình kết nối sinh viên NEU phát triển kỹ năng.' }}
+                </p>
+
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('club_detail', club_id=club.id) }}" class="btn btn-primary-light text-primary flex-grow-1 fw-bold rounded-pill border-0">
+                        Thông Tin Chi Tiết
+                    </a>
+                    <button class="btn btn-primary rounded-circle shadow-sm" style="width: 44px; height: 44px; padding: 0;" data-bs-toggle="modal" data-bs-target="#applyModal{{ club.id }}">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join Club Modal -->
+    <div class="modal fade" id="applyModal{{ club.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold text-dark">Đơn Gia Nhập Câu Lạc Bộ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{{ url_for('student_apply_club', club_id=club.id) }}">
+                    <div class="modal-body p-4">
+                        <div class="alert alert-primary border-0 rounded-4 mb-4" style="background: #eff6ff;">
+                            <div class="d-flex">
+                                <div class="me-3">
+                                    <i class="fas fa-info-circle text-primary"></i>
+                                </div>
+                                <div class="small text-primary">
+                                    Bạn đang đăng ký gia nhập <strong>{{ club.club_name }}</strong>. Vui lòng xác nhận thông tin bên dưới.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personal Info (Pre-filled) -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-12">
+                                <label class="form-label text-muted small fw-bold uppercase px-1">Thông tin cá nhân</label>
+                                <div class="p-3 bg-light rounded-4 border border-white shadow-sm">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted small">Họ và tên:</span>
+                                        <span class="fw-bold small">{{ current_user.student_profile.full_name }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted small">Mã SV:</span>
+                                        <span class="fw-bold small">{{ current_user.student_profile.student_code }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="text-muted small">Điện thoại:</span>
+                                        <span class="fw-bold small">{{ current_user.student_profile.phone or 'Chưa cập nhật' }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted small">Email:</span>
+                                        <span class="fw-bold small text-lowercase text-truncate" style="max-width: 180px;">{{ current_user.email }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Motivation -->
+                        <div class="mb-0">
+                            <label class="form-label text-muted small fw-bold uppercase px-1">Tại sao bạn tham gia?</label>
+                            <textarea name="motivation" class="form-control border-0 bg-light rounded-4 p-3 shadow-none" 
+                                      placeholder="Kể về bản thân, khả năng và lý do bạn muốn đồng hành cùng CLB..." 
+                                      rows="4" required style="resize: none;"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="button" class="btn btn-light rounded-pill px-4 fw-bold text-muted border-0" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">Gửi Đơn Ngay</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card border-0 bg-light text-center p-5 rounded-5 mt-5">
+    <div class="py-5">
+        <i class="fas fa-users-slash fa-4x text-muted mb-4 opacity-25"></i>
+        <h4 class="text-muted fw-bold">Hiện chưa có câu lạc bộ nào</h4>
+        <p class="text-muted">Hãy quay lại sau hoặc đăng ký thành lập CLB mới bạn nhé!</p>
+    </div>
+</div>
+{% endif %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/student/clubs.css') }}">
+
+<script>
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    const term = e.target.value.toLowerCase();
+    const items = document.querySelectorAll('.club-item');
+    items.forEach(item => {
+        const text = item.innerText.toLowerCase();
+        item.style.display = text.includes(term) ? '' : 'none';
+    });
+});
+</script>
+
+
+
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const cards = document.querySelectorAll('.event-card');
+    cards.forEach(card => {
+        const title = card.querySelector('.event-title').textContent.toLowerCase();
+        card.parentElement.style.display = title.includes(searchTerm) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}
